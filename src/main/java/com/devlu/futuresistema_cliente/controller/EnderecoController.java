@@ -67,7 +67,8 @@ public class EnderecoController {
         EnderecoDTO enderecoDTO = EnderecoDTO.builder()
                 .cep(enderecoRequestDTO.getCep())
                 .logradouro(enderecoRequestDTO.getLogradouro())
-                .numero(enderecoRequestDTO.getNumero())
+                .numero(enderecoRequestDTO.getNumero()
+                        != null ? Long.parseLong(enderecoRequestDTO.getNumero()) : null) // Converte para Long
                 .complemento(enderecoRequestDTO.getComplemento())
                 .bairro(enderecoRequestDTO.getBairro())
                 .cidade(enderecoRequestDTO.getCidade())
@@ -105,7 +106,8 @@ public class EnderecoController {
         EnderecoDTO enderecoDTO = EnderecoDTO.builder()
                 .cep(enderecoRequestDTO.getCep())
                 .logradouro(enderecoRequestDTO.getLogradouro())
-                .numero(enderecoRequestDTO.getNumero())
+                .numero(enderecoRequestDTO.getNumero()
+                        != null ? Long.parseLong(enderecoRequestDTO.getNumero()) : null) // Converte para Long
                 .complemento(enderecoRequestDTO.getComplemento())
                 .bairro(enderecoRequestDTO.getBairro())
                 .cidade(enderecoRequestDTO.getCidade())

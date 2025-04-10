@@ -120,7 +120,8 @@ public class ClienteService {
             EnderecoEntity enderecoEntity = clienteEntity.getEndereco();
             enderecoEntity.setCep(clienteRequestDTO.getCep());
             enderecoEntity.setLogradouro(clienteRequestDTO.getLogradouro());
-            enderecoEntity.setNumero(clienteRequestDTO.getNumero());
+            enderecoEntity.setNumero(clienteRequestDTO.getNumero()
+                    != null ? Long.parseLong(clienteRequestDTO.getNumero()) : null);
             enderecoEntity.setComplemento(clienteRequestDTO.getComplemento());
             enderecoEntity.setBairro(clienteRequestDTO.getBairro());
             enderecoEntity.setCidade(clienteRequestDTO.getCidade());

@@ -17,7 +17,7 @@ public class CustomError {
     /*
     É o mesmo retorno do Json veja:
     {
-    "timestamp": "2025-03-03T21:40:25.910+00:00",
+    "timestamp": "2025-04-07T21:40:25.910+00:00",
     "status": 500,
     "error": "Internal Server Error",
     "path": "/products/100"

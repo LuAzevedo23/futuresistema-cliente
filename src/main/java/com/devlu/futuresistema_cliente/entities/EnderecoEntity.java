@@ -43,7 +43,7 @@ public class EnderecoEntity {
     /**
      * Número do endereço.
      */
-    private String numero;
+    private Long numero;
 
     /**
      * Complemento do endereço.

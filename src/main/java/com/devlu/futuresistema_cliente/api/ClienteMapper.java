@@ -37,7 +37,7 @@ public class ClienteMapper {
         return EnderecoEntity.builder()
                 .cep(clienteDTO.getCep())
                 .logradouro(clienteDTO.getLogradouro())
-                .numero(clienteDTO.getNumero())
+                .numero(Long.parseLong(clienteDTO.getNumero()))
                 .complemento(clienteDTO.getComplemento())
                 .bairro(clienteDTO.getBairro())
                 .cidade(clienteDTO.getCidade())
