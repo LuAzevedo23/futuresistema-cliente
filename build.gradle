@@ -45,12 +45,15 @@ dependencies {
 	testImplementation 'org.springframework.boot:spring-boot-starter-test'
 	testImplementation 'org.springframework.security:spring-security-test'
 	testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
+	implementation 'com.itextpdf:itext7-core:7.2.5'
 }
 
 javafx {
 	version = "17.0.2"
 	modules = [ 'javafx.controls', 'javafx.fxml', 'javafx.graphics', 'javafx.web' ]
+
 }
+
 
 // Definindo a tarefa JavaExec corretamente
 tasks.register('runJavaFX', JavaExec) {

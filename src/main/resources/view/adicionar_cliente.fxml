@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!--
+    Paleta de Cores: Azul (#428bca), Cinza Escuro (#333), Cinza Claro (#eee)
+    Emojis: ➕ Adicionar
+-->
+
+<?import javafx.scene.layout.VBox?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.TextField?>
+<?import javafx.scene.control.Button?>
+<?import javafx.geometry.Insets?>
+
+<VBox xmlns="http://javafx.com/javafx/17" xmlns:fx="http://javafx.com/fxml/1"
+      fx:controller="com.devlu.futuresistema_cliente.controller.AdicionarClienteFXController"
+      style="-fx-background-color: #eee;">
+    <padding>
+        <Insets top="20" right="20" bottom="20" left="20"/>
+    </padding>
+
+    <Label text="Adicionar Cliente" style="-fx-font-size: 20px; -fx-font-weight: bold;"/>
+
+    <Label text="Nome:"/>
+    <TextField fx:id="nomeTextField"/>
+
+    <Label text="E-mail:"/>
+    <TextField fx:id="emailTextField"/>
+
+    <Label text="Telefone:"/>
+    <TextField fx:id="telefoneTextField"/>
+
+    <Button text="➕ Adicionar" style="-fx-background-color: #428bca; -fx-text-fill: white;"
+            onAction="#adicionarCliente"/>
+
+    <!-- Área de mensagens/feedback ao usuário -->
+    <Label fx:id="mensagemLabel" text="" style="-fx-text-fill: green;"/>
+</VBox>

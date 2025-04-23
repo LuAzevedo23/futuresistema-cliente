@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!--
+    Paleta de Cores: Azul (#428bca), Cinza Escuro (#333), Cinza Claro (#eee)
+    Emojis: ❌ Excluir
+-->
+
+<?import javafx.scene.layout.VBox?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.TextField?>
+<?import javafx.scene.control.Button?>
+<?import javafx.geometry.Insets?>
+
+<VBox xmlns="http://javafx.com/javafx/17" xmlns:fx="http://javafx.com/fxml/1"
+      fx:controller="com.devlu.futuresistema_cliente.controller.ExcluirClienteFXController"
+      style="-fx-background-color: #eee;">
+    <padding>
+        <Insets top="20" right="20" bottom="20" left="20"/>
+    </padding>
+
+    <Label text="Excluir Cliente" style="-fx-font-size: 20px; -fx-font-weight: bold;"/>
+
+    <Label text="ID do Cliente:"/>
+    <TextField fx:id="idTextField"/>
+
+    <Button text="❌ Excluir" style="-fx-background-color: #428bca; -fx-text-fill: white;"
+            onAction="#excluirCliente"/>
+
+    <!-- Área de mensagens/feedback ao usuário -->
+    <Label fx:id="mensagemLabel" text="" style="-fx-text-fill: green;"/>
+</VBox>

@@ -16,11 +16,7 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 public class EnderecoDTO {
 
-    /**
-     * Identificador único do endereço.
-     */
     private Long id;
-
     /**
      * CEP do endereço.
      */
@@ -58,4 +54,11 @@ public class EnderecoDTO {
 
     private String status;
 
+    public EnderecoDTO(String logradouro, String bairro, String cidade, String estado, String cep) {
+        this.logradouro = logradouro;
+        this.bairro = bairro;
+        this.cidade = cidade;
+        this.estado = estado;
+        this.cep = cep;
+    }
 }

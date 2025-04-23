@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+
+<?import javafx.geometry.Insets?>
+<BorderPane xmlns="http://javafx.com/javafx/8.0.171" xmlns:fx="http://javafx.com/fxml/1"
+            fx:controller="com.devlu.futuresistema_cliente.controller.controllerFX.GerenciadorClientesController">
+
+    <top>
+        <Label text="Gerenciador de Clientes" style="-fx-font-size: 20px; -fx-padding: 16 0 16 0; -fx-font-weight: bold;"
+               BorderPane.alignment="CENTER"/>
+    </top>
+
+    <center>
+        <TableView fx:id="clientesTable" prefHeight="350" prefWidth="600" BorderPane.alignment="CENTER">
+            <columns>
+                <TableColumn fx:id="colId" text="ID" prefWidth="80"/>
+                <TableColumn fx:id="colNome" text="Nome" prefWidth="220"/>
+                <TableColumn fx:id="colEmail" text="Email" prefWidth="180"/>
+                <TableColumn fx:id="colTelefone" text="Telefone" prefWidth="120"/>
+                <TableColumn fx:id="colEndereco" text="Endereço" prefWidth="260"/>
+            </columns>
+        </TableView>
+    </center>
+
+    <bottom>
+        <HBox spacing="12">
+            <padding>
+                <Insets top="16" right="16" bottom="16" left="16" />
+            </padding>
+            <Button text="Adicionar" fx:id="btnAdicionar" onAction="#adicionarCliente"/>
+            <Button text="Editar" fx:id="btnEditar" onAction="#editarCliente"/>
+            <Button text="Excluir" fx:id="btnExcluir" onAction="#excluirCliente"/>
+            <Region HBox.hgrow="ALWAYS"/>
+            <Button text="Fechar" fx:id="btnFechar" onAction="#fecharJanela"/>
+        </HBox>
+    </bottom>
+
+</BorderPane>
