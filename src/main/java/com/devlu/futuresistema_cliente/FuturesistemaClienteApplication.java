@@ -1,17 +1,14 @@
 package com.devlu.futuresistema_cliente;
 
-
-import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 
 @SpringBootApplication
 public class FuturesistemaClienteApplication {
 
-	public static void main(String[] args) {
+	// Esta classe serve apenas como ponto de configuração do Spring Boot
+	// Não precisa de código adicional além da anotação @SpringBootApplication
 
-		SpringApplication.run(FuturesistemaClienteApplication.class, args);
-	}
-
+}
 
 
 	/*
@@ -40,6 +37,10 @@ public class FuturesistemaClienteApplication {
 			Platform.exit();
 		}
 		*/
-	}
+
+
+
+
+
 
 

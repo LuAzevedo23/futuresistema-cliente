@@ -56,8 +56,6 @@ public class EnderecoDTO {
      */
     private String estado;
 
-    /**
-     * Status do endereço.
-     */
     private String status;
+
 }

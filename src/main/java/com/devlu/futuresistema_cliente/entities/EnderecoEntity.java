@@ -15,7 +15,6 @@ import java.util.Objects;
  */
 @Entity
 @Table(name = "tb_endereco")
-@Data
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
@@ -62,11 +61,85 @@ public class EnderecoEntity {
     @Column(nullable = false)
     private String cidade;
 
+    private String status;
+
     /**
      * Estado do endereço.
      */
     @Column(nullable = false)
     private String estado;
+
+    public String getBairro() {
+        return bairro;
+    }
+
+    public void setBairro(String bairro) {
+        this.bairro = bairro;
+    }
+
+    public String getCep() {
+        return cep;
+    }
+
+    public void setCep(String cep) {
+        this.cep = cep;
+    }
+
+    public String getCidade() {
+        return cidade;
+    }
+
+    public void setCidade(String cidade) {
+        this.cidade = cidade;
+    }
+
+    public String getComplemento() {
+        return complemento;
+    }
+
+    public void setComplemento(String complemento) {
+        this.complemento = complemento;
+    }
+
+    public String getEstado() {
+        return estado;
+    }
+
+    public void setEstado(String estado) {
+        this.estado = estado;
+    }
+
+    public Long getId() {
+        return id;
+    }
+
+    public void setId(Long id) {
+        this.id = id;
+    }
+
+    public String getLogradouro() {
+        return logradouro;
+    }
+
+    public void setLogradouro(String logradouro) {
+        this.logradouro = logradouro;
+    }
+
+    public Long getNumero() {
+        return numero;
+    }
+
+    public void setNumero(Long numero) {
+        this.numero = numero;
+    }
+
+    public String getStatus() {
+        return status;
+    }
+
+    public void setStatus(String status) {
+        this.status = status;
+    }
 
     /**
      * Implementação do método equals para comparar objetos {@link EnderecoEntity} com base em todos os atributos.
@@ -78,6 +151,7 @@ public class EnderecoEntity {
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
+
         EnderecoEntity that = (EnderecoEntity) o;
         return Objects.equals(id, that.id) &&
                 Objects.equals(cep, that.cep) &&
@@ -86,6 +160,7 @@ public class EnderecoEntity {
                 Objects.equals(complemento, that.complemento) &&
                 Objects.equals(bairro, that.bairro) &&
                 Objects.equals(cidade, that.cidade) &&
+                Objects.equals(status, that.status) &&
                 Objects.equals(estado, that.estado);
     }
 
@@ -98,9 +173,6 @@ public class EnderecoEntity {
     public int hashCode() {
         return Objects.hash(id, cep, logradouro, numero, complemento, bairro, cidade, estado);
     }
-
-
-
 }
 
 

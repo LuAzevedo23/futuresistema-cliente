@@ -87,6 +87,7 @@ public class ClienteEntity {
      */
     @Override
     public int hashCode() {
+
         return Objects.hash(id, nome, email, telefone, endereco, status);
     }
 }

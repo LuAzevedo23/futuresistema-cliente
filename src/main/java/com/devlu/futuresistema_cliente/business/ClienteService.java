@@ -3,6 +3,7 @@ package com.devlu.futuresistema_cliente.business;
 import com.devlu.futuresistema_cliente.api.ClienteMapper;
 import com.devlu.futuresistema_cliente.api.ClienteRequestDTO;
 import com.devlu.futuresistema_cliente.controller.dto.ClienteDTO;
+import com.devlu.futuresistema_cliente.controller.dto.EnderecoDTO;
 import com.devlu.futuresistema_cliente.entities.ClienteEntity;
 import com.devlu.futuresistema_cliente.entities.EnderecoEntity;
 import com.devlu.futuresistema_cliente.repository.ClienteRepository;
@@ -17,6 +18,7 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 
 /**
+ * Serviço para gerenciamento de clientes.
  * Serviço que implementa a lógica de negócios para gerenciamento de clientes.
  *
  * <p>Esta classe fornece métodos para buscar, listar, inserir, atualizar e excluir clientes.</p>
@@ -37,6 +39,18 @@ public class ClienteService {
     public ClienteService(ClienteRepository clienteRepository, ClienteMapper clienteMapper) {
         this.clienteRepository = clienteRepository;
         this.clienteMapper = clienteMapper;
+    }
+
+    /**
+     * Busca todos os clientes e retorna uma lista de ClienteDTO.
+     *
+     * @return Lista de ClienteDTO.
+     */
+    public List<ClienteDTO> findAllClientes() {
+        List<ClienteEntity> clientes = clienteRepository.findAll();
+        return clientes.stream()
+                .map(this::toDTO)
+                .collect(Collectors.toList());
     }
 
     /**
@@ -141,8 +155,21 @@ public class ClienteService {
         dto.setEmail(clienteEntity.getEmail());
         dto.setTelefone(clienteEntity.getTelefone());
         if (clienteEntity.getEndereco() != null) {
-            dto.setEndereco(clienteEntity.getEndereco().getLogradouro() + ", " + clienteEntity.getEndereco().getNumero());
+            dto.setEndereco(toEnderecoDTO(clienteEntity.getEndereco()));
         }
         return dto;
+    }
+    private EnderecoDTO toEnderecoDTO(EnderecoEntity enderecoEntity){
+        EnderecoDTO enderecoDTO = new EnderecoDTO();
+        enderecoDTO.setId(enderecoEntity.getId());
+        enderecoDTO.setCep(enderecoEntity.getCep());
+        enderecoDTO.setLogradouro(enderecoEntity.getLogradouro());
+        enderecoDTO.setNumero(enderecoEntity.getNumero());
+        enderecoDTO.setComplemento(enderecoEntity.getComplemento());
+        enderecoDTO.setBairro(enderecoEntity.getBairro());
+        enderecoDTO.setCidade(enderecoEntity.getCidade());
+        enderecoDTO.setEstado(enderecoEntity.getEstado());
+        enderecoDTO.setStatus(enderecoEntity.getStatus());
+        return enderecoDTO;
     }
 }
