@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Relatório - Future Sistema - Módulo Cliente</title>
+    <link rel="stylesheet" href="../relatorios/relatorio-style.css">
+</head>
+<body>
+<div class="relatorio-container">
+    <!-- Título Principal do Relatório -->
+    <h1 class="titulo-principal">Future Sistema - Módulo Cliente</h1>
+
+    <!-- Data e Hora de Emissão -->
+    <p class="data-emissao">
+        Emitido em: <span id="data-hora"></span>
+    </p>
+
+    <!-- Nome da Empresa Licenciada -->
+    <p class="empresa-licenciada">
+        Empresa Licenciada:
+        <span id="nome-empresa">Nome da Empresa (Fictício)</span>
+        <!--
+            [PERSONALIZAÇÃO FUTURA]
+            Para inserir o nome real da empresa dinamicamente,
+            substitua o texto "Nome da Empresa (Fictício)"
+            pelo valor correspondente no seu sistema.
+            Exemplo (com JavaScript):
+            document.getElementById('nome-empresa').textContent = suaVariavelComNomeDaEmpresa;
+        -->
+    </p>
+
+    <!-- Botão de Suporte WhatsApp -->
+    <a href="https://wa.me/5519997634098?text=Estou%20no%20sistema%20e%20preciso%20de%20suporte."
+       class="btn-suporte">
+        Preciso de Suporte! 💬
+        <!--
+            [PERSONALIZAÇÃO FUTURA]
+            Para alterar o número de telefone ou a mensagem padrão,
+            modifique o atributo 'href' do link acima.
+            - Número de telefone: substitua '5519997634098' pelo número desejado (com código do país).
+            - Mensagem: altere o texto após '?text=' (use '%20' para espaços).
+        -->
+    </a>
+
+    <!-- Conteúdo do Relatório (Exemplo) -->
+    <section class="conteudo-relatorio">
+        <h2>Dados dos Clientes</h2>
+        <p>Aqui entrariam os dados detalhados dos clientes, gráficos, etc.</p>
+        <!--
+            [PERSONALIZAÇÃO FUTURA]
+            Adicione aqui o conteúdo dinâmico do seu relatório.
+            Pode ser gerado via JavaScript ou inserido pelo backend.
+        -->
+    </section>
+</div>
+
+<script>
+    // Função para exibir a data e hora atuais
+    function atualizarDataHora() {
+        const agora = new Date();
+        const dataHoraFormatada = agora.toLocaleString();
+        document.getElementById('data-hora').textContent = dataHoraFormatada;
+    }
+
+    // Atualiza a data e hora assim que a página carrega
+    atualizarDataHora();
+
+    // Atualiza a data e hora a cada segundo
+    setInterval(atualizarDataHora, 1000);
+</script>
+</body>
+</html>

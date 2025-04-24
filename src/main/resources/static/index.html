@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <title>Gestão de Registros</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+<div class="container">
+    <header>
+        <h1>📋 Gestão de Registros</h1>
+        <div class="future-sistema-info">
+            Future Sistema - Módulo Cliente - Emitido em: <span id="data-hora">23/04/2025, 21:00:58</span>
+            <br>
+            Empresa Licenciada: Nome da Empresa (Fictício)
+        </div>
+    </header>
+    <main>
+        <!-- Tabela de Registros -->
+        <section class="records-section">
+            <div class="toolbar">
+                <div class="toolbar-left">
+                    <button class="btn btn-add" onclick="openForm()">➕ Novo Registro</button>
+                    <button class="btn btn-report" onclick="showReport()">📄 Gerar Relatório</button>
+                </div>
+                <a href="https://wa.me/5519997634098?text=Estou%20no%20sistema%20e%20preciso%20de%20suporte."
+                   target="_blank" class="btn btn-support">💬 Suporte</a>
+            </div>
+            <table class="records-table">
+                <thead>
+                <tr>
+                    <th>Nome</th>
+                    <th>Email</th>
+                    <th>Status</th>
+                    <th>Ações</th>
+                </tr>
+                </thead>
+                <tbody id="records-body">
+                <!-- Registros serão inseridos aqui pelo JS -->
+                </tbody>
+            </table>
+        </section>
+        <section id="report-section" class="report-section" style="display:none;">
+            <div class="report-toolbar">
+                <span>📊 <strong>Relatório dos Registros</strong></span>
+                <div>
+                    <button class="btn btn-print" onclick="printReport()">🖨️ Imprimir PDF</button>
+                    <button class="btn btn-close" onclick="hideReport()">✖️ Fechar</button>
+                </div>
+            </div>
+            <div id="report-content" class="report-content">
+                <!-- Conteúdo gerado dinamicamente -->
+            </div>
+        </section>
+    </main>
+</div>
+
+<!-- Modal de Notificações -->
+<div id="modal-feedback" class="modal">
+    <div class="modal-content">
+        <span id="modal-emoji" class="modal-emoji"></span>
+        <span id="modal-message"></span>
+        <button onclick="closeModal()" class="btn btn-modal">OK</button>
+    </div>
+</div>
+
+<!-- Formulário Modal para Novo/Editar Registro -->
+<div id="form-modal" class="modal">
+    <div class="modal-content form-modal-content">
+        <h2 id="form-title">Novo Registro</h2>
+        <form id="record-form" onsubmit="submitForm(event)">
+            <input type="hidden" id="form-id" />
+            <label>
+                Nome:
+                <input type="text" id="form-nome" required maxlength="50" />
+            </label>
+            <label>
+                Email:
+                <input type="email" id="form-email" required maxlength="50"/>
+            </label>
+            <label>
+                Status:
+                <select id="form-status" required>
+                    <option value="Ativo">Ativo</option>
+                    <option value="Inativo">Inativo</option>
+                </select>
+            </label>
+            <button type="submit" class="btn btn-save">💾 Salvar</button>
+            <button type="button" class="btn btn-cancel" onclick="closeForm()">Cancelar</button>
+        </form>
+    </div>
+</div>
+<script src="script.js"></script>
+</body>
+</html>
