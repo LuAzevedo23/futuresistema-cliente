@@ -1,0 +1,4 @@
+systemProp.java.net.useSystemProxies=false
+systemProp.http.proxyHost=
+systemProp.https.proxyHost=
+systemProp.java.net.preferIPv4Stack=true

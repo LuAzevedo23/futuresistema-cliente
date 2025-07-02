@@ -2,38 +2,72 @@
 
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
-
 <?import javafx.geometry.Insets?>
-<BorderPane xmlns="http://javafx.com/javafx/8.0.171" xmlns:fx="http://javafx.com/fxml/1"
-            fx:controller="com.devlu.futuresistema_cliente.controller.controllerFX.GerenciadorClientesController">
+
+
+<BorderPane xmlns="http://javafx.com/javafx/17"
+            xmlns:fx="http://javafx.com/fxml/1"
+            fx:controller="com.devlu.futuresistema_cliente.controller.controllerFX.GerenciadorClientesController"
+            styleClass="root"
+            stylesheets="@/css/styles.css">
 
     <top>
-        <Label text="Gerenciador de Clientes" style="-fx-font-size: 20px; -fx-padding: 16 0 16 0; -fx-font-weight: bold;"
+        <Label text="Gerenciador de Clientes"
+               styleClass="title"
                BorderPane.alignment="CENTER"/>
     </top>
 
     <center>
-        <TableView fx:id="clientesTable" prefHeight="350" prefWidth="600" BorderPane.alignment="CENTER">
-            <columns>
-                <TableColumn fx:id="colId" text="ID" prefWidth="80"/>
-                <TableColumn fx:id="colNome" text="Nome" prefWidth="220"/>
-                <TableColumn fx:id="colEmail" text="Email" prefWidth="180"/>
-                <TableColumn fx:id="colTelefone" text="Telefone" prefWidth="120"/>
-                <TableColumn fx:id="colEndereco" text="Endereço" prefWidth="260"/>
-            </columns>
-        </TableView>
+
+        <TabPane fx:id="mainTabPane" BorderPane.alignment="CENTER">
+            <tabs>
+
+                <Tab text="Clientes" fx:id="clientesTab" closable="false">
+                    <content>
+                        <TableView fx:id="clientesTable" prefHeight="350" prefWidth="600">
+                            <columns>
+                                <TableColumn fx:id="colId" text="ID" prefWidth="80"/>
+                                <TableColumn fx:id="colNome" text="Nome" prefWidth="220"/>
+                                <TableColumn fx:id="colEmail" text="Email" prefWidth="180"/>
+                                <TableColumn fx:id="colTelefone" text="Telefone" prefWidth="120"/>
+                                <TableColumn fx:id="colStatus" text="Status" prefWidth="100"/>
+
+                                <TableColumn fx:id="colEndereco" text="Endereço" prefWidth="260"/>
+                            </columns>
+                        </TableView>
+                    </content>
+                </Tab>
+
+                <Tab text="Adicionar Cliente" fx:id="adicionarClienteTab" closable="true">
+                    <!-- O conteúdo desta aba será carregado dinamicamente pelo controlador JavaFX -->
+                </Tab>
+
+                <Tab text="Editar Cliente" fx:id="editarClienteTab" closable="true">
+                    <!-- O conteúdo desta aba será carregado dinamicamente pelo controlador JavaFX -->
+                </Tab>
+            </tabs>
+        </TabPane>
     </center>
 
     <bottom>
         <HBox spacing="12">
             <padding>
-                <Insets top="16" right="16" bottom="16" left="16" />
+                <Insets top="16" right="16" bottom="16" left="16"/>
             </padding>
-            <Button text="Adicionar" fx:id="btnAdicionar" onAction="#adicionarCliente"/>
-            <Button text="Editar" fx:id="btnEditar" onAction="#editarCliente"/>
-            <Button text="Excluir" fx:id="btnExcluir" onAction="#excluirCliente"/>
+            <Button text="Adicionar" fx:id="btnAdicionar" styleClass="btn-primary"
+                    onAction="#adicionarCliente"/>
+            <Button text="Editar" fx:id="btnEditar" styleClass="btn-primary"
+                    onAction="#editarCliente"/>
+            <Button text="Excluir" fx:id="btnExcluir" styleClass="btn-primary"
+                    onAction="#excluirCliente"/>
             <Region HBox.hgrow="ALWAYS"/>
-            <Button text="Fechar" fx:id="btnFechar" onAction="#fecharJanela"/>
+
+            <!-- Botão para Gerar Relatório -->
+            <Button text="Gerar Relatório" fx:id="btnRelatorioClientes" styleClass="btn-primary"
+                    onAction="#gerarRelatorioClientes"/>
+
+            <Button text="Fechar" fx:id="btnFechar" styleClass="btn-primary"
+                    onAction="#fecharJanela"/>
         </HBox>
     </bottom>
 

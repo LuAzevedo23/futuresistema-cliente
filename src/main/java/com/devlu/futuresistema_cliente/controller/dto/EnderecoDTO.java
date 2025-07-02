@@ -1,64 +1,110 @@
 package com.devlu.futuresistema_cliente.controller.dto;
 
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import com.devlu.futuresistema_cliente.entities.Endereco;
 
 /**
- * Classe de transferência de dados (DTO) para a entidade {@link com.futuresistema.cliente.infrastructure.entities.EnderecoEntity}.
- *
- * <p>Esta classe define os campos necessários para transferir dados entre as camadas da aplicação.</p>
+ * Classe DTO (Data Transfer Object) para transferir dados de endereços.
+ * Não utiliza Lombok; getters e setters são explícitos.
  */
-@Data
-@Builder
-@NoArgsConstructor
-@AllArgsConstructor
 public class EnderecoDTO {
 
     private Long id;
-    /**
-     * CEP do endereço.
-     */
     private String cep;
-
-    /**
-     * Logradouro do endereço.
-     */
     private String logradouro;
-
-    /**
-     * Número do endereço.
-     */
     private Long numero;
-
-    /**
-     * Complemento do endereço.
-     */
     private String complemento;
-
-    /**
-     * Bairro do endereço.
-     */
     private String bairro;
-
-    /**
-     * Cidade do endereço.
-     */
     private String cidade;
-
-    /**
-     * Estado do endereço.
-     */
     private String estado;
-
     private String status;
 
-    public EnderecoDTO(String logradouro, String bairro, String cidade, String estado, String cep) {
-        this.logradouro = logradouro;
-        this.bairro = bairro;
-        this.cidade = cidade;
-        this.estado = estado;
+    // Construtor padrão
+    public EnderecoDTO() {
+    }
+
+    // Construtor que recebe um objeto EnderecoEntity e preenche os dados do DTO.
+    public EnderecoDTO(Endereco endereco) {
+        this.id = endereco.getId();
+        this.cep = endereco.getCep();
+        this.logradouro = endereco.getLogradouro();
+        this.numero = endereco.getNumero();
+        this.complemento = endereco.getComplemento();
+        this.bairro = endereco.getBairro();
+        this.cidade = endereco.getCidade();
+        this.estado = endereco.getEstado();
+        this.status = endereco.getStatus();
+    }
+
+    // --- Getters e Setters ---
+    public Long getId() {
+        return id;
+    }
+
+    public void setId(Long id) {
+        this.id = id;
+    }
+
+    public String getCep() {
+        return cep;
+    }
+
+    public void setCep(String cep) {
         this.cep = cep;
+    }
+
+    public String getLogradouro() {
+        return logradouro;
+    }
+
+    public void setLogradouro(String logradouro) {
+        this.logradouro = logradouro;
+    }
+
+    public Long getNumero() {
+        return numero;
+    }
+
+    public void setNumero(Long numero) {
+        this.numero = numero;
+    }
+
+    public String getComplemento() {
+        return complemento;
+    }
+
+    public void setComplemento(String complemento) {
+        this.complemento = complemento;
+    }
+
+    public String getBairro() {
+        return bairro;
+    }
+
+    public void setBairro(String bairro) {
+        this.bairro = bairro;
+    }
+
+    public String getCidade() {
+        return cidade;
+    }
+
+    public void setCidade(String cidade) {
+        this.cidade = cidade;
+    }
+
+    public String getEstado() {
+        return estado;
+    }
+
+    public void setEstado(String estado) {
+        this.estado = estado;
+    }
+
+    public String getStatus() {
+        return status;
+    }
+
+    public void setStatus(String status) {
+        this.status = status;
     }
 }

@@ -1,126 +1,104 @@
 package com.devlu.futuresistema_cliente;
 
 import javafx.application.Application;
-import javafx.application.Platform;
+import javafx.application.Platform; // Importação essencial para Platform.runLater()
 import javafx.fxml.FXMLLoader;
-import javafx.geometry.Insets;
-import javafx.geometry.Pos;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
-import javafx.scene.control.Alert;
-import javafx.scene.control.Button;
-import javafx.scene.control.Label;
-import javafx.scene.layout.HBox;
-import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
 import org.springframework.boot.builder.SpringApplicationBuilder;
 import org.springframework.context.ConfigurableApplicationContext;
 
+import java.io.IOException;
 
-// Classe para rodar Spring e lançar JavaFX
+/**
+ * Classe principal para lançar a aplicação JavaFX integrada com Spring Boot.
+ * Gerencia o ciclo de vida da aplicação Spring e da interface gráfica JavaFX.
+ */
 public class AppLauncher extends Application {
 
     private ConfigurableApplicationContext springContext;
 
-    public static void main(String[] args) {
-        launch(args);
-    }
-
+    /**
+     * Método de inicialização da aplicação JavaFX.
+     * Aqui, o contexto do Spring Boot é inicializado antes da interface gráfica.
+     * Os argumentos passados na linha de comando são repassados ao Spring.
+     */
     @Override
-    public void init() throws Exception {
-        // Inicializa o contexto Spring Boot
-        springContext = new SpringApplicationBuilder(FuturesistemaClienteApplication.class)
-                .headless(false)
-                .run();
+    public void init() {
+        // Captura os argumentos da linha de comando
+        String[] args = getParameters().getRaw().toArray(new String[0]);
+        // Inicializa o contexto Spring Boot, executando a classe principal da sua aplicação Spring.
+        this.springContext = new SpringApplicationBuilder(FuturesistemaClienteApplication.class)
+                .run(args);
     }
 
+    /**
+     * Método principal para iniciar a interface gráfica JavaFX.
+     * Este método é chamado após o init() e é o ponto de entrada para a UI.
+     *
+     * @param primaryStage O Stage (janela principal) fornecido pelo JavaFX.
+     */
     @Override
     public void start(Stage primaryStage) {
-        try {
-            // Título
-            Label titleLabel = new Label("Future Sistema - Cliente");
-            titleLabel.setStyle("-fx-font-size: 26px; -fx-font-weight: bold;");
-
-            // Status
-            Label statusLabel = new Label("Sistema conectado com sucesso!");
-            statusLabel.setStyle("-fx-font-size: 16px; -fx-text-fill: green;");
-
-            // Botão Gerenciar Clientes
-            Button clientesButton = new Button("Gerenciar Clientes");
-            clientesButton.setOnAction(e -> {
-                try {
-                    openClientesView();
-                } catch (Exception ex) {
-                    showErrorDialog("Erro ao abrir gerenciador de clientes", ex);
-                }
-            });
-
-            // Botão Configurações
-            Button configButton = new Button("Configurações");
-            configButton.setOnAction(e -> {
-                statusLabel.setText("Configurações ainda não implementadas");
-            });
-
-            // Layout de botões
-            HBox buttonsLayout = new HBox(20, clientesButton, configButton);
-            buttonsLayout.setAlignment(Pos.CENTER);
-
-            // Layout principal
-            VBox mainLayout = new VBox(24, titleLabel, statusLabel, buttonsLayout);
-            mainLayout.setPadding(new Insets(30));
-            mainLayout.setAlignment(Pos.TOP_CENTER);
-
-            // Cena principal
-            Scene scene = new Scene(mainLayout, 800, 600);
-            primaryStage.setScene(scene);
-            primaryStage.setTitle("Future Sistema");
-            primaryStage.show();
-
-            System.out.println("JavaFX UI iniciada com sucesso!");
-        } catch (Exception e) {
-            System.err.println("Erro ao iniciar a interface JavaFX: " + e.getMessage());
-            e.printStackTrace();
-        }
+        showMainView(primaryStage);
     }
 
-    // Abre o FXML do Gerenciador de Clientes em uma nova janela
-    private void openClientesView() {
-        System.out.println("Abrindo gerenciador de clientes...");
-
+    /**
+     * Carrega a tela principal do Gerenciador de Clientes e a exibe.
+     *
+     * @param primaryStage O Stage (janela) onde a interface será exibida.
+     */
+    private void showMainView(Stage primaryStage) {
         try {
-            // Garante que encontra o FXML conforme a pasta do projeto
+            // Carrega o arquivo FXML da tela principal do gerenciador de clientes
             FXMLLoader loader = new FXMLLoader(getClass().getResource("/view/GerenciadorClientes.fxml"));
+            // Define o Spring como fábrica de controladores, permitindo a injeção de dependências nos controladores JavaFX
+            loader.setControllerFactory(springContext::getBean);
+            Parent root = loader.load(); // Carrega a hierarquia de objetos da interface
 
-            // (Opcional) debug: veja se está encontrando o arquivo!
-            System.out.println("URL do FXML = " + getClass().getResource("/view/GerenciadorClientes.fxml"));
+            Scene scene = new Scene(root); // Cria uma nova cena com o conteúdo carregado
+            primaryStage.setScene(scene); // Define a cena na janela principal
+            primaryStage.setTitle("Gerenciador de Clientes"); // Define o título da janela
+            primaryStage.show(); // Exibe a janela
 
-            Parent root = loader.load();
+            // AJUSTE CRUCIAL: Usando Platform.runLater para garantir que a janela venha para a frente e receba o foco
+            // O Platform.runLater garante que esta operação de UI seja executada de forma segura
+            // na thread de aplicação JavaFX, quando a janela já estiver renderizada.
+            Platform.runLater(() -> {
+                primaryStage.toFront(); // Traz a janela para a frente de todas as outras
+                primaryStage.requestFocus(); // Solicita que a janela receba o foco
+            });
 
-            Stage stage = new Stage();
-            stage.setTitle("Gerenciador de Clientes");
-            stage.setScene(new Scene(root));
-            stage.show();
-
-        } catch (Exception ex) {
-            ex.printStackTrace();
-            showErrorDialog("Erro ao abrir gerenciador de clientes", ex);
+        } catch (IOException e) {
+            // Tratamento de erro caso o FXML principal não possa ser carregado
+            System.err.println("Erro ao carregar o FXML principal: " + e.getMessage());
+            e.printStackTrace();
+            // Notificação.exibirMensagem("Erro", "Erro de Carregamento", "Não foi possível carregar a tela principal. Detalhes: " + e.getMessage(), Alert.AlertType.ERROR);
+        } catch (Exception e) {
+            // Tratamento de outros erros inesperados durante a inicialização da aplicação
+            System.err.println("Erro inesperado ao iniciar a aplicação: " + e.getMessage());
+            e.printStackTrace();
+            // Notificação.exibirMensagem("Erro", "Erro Inesperado", "Ocorreu um erro inesperado ao iniciar a aplicação. Detalhes: " + e.getMessage(), Alert.AlertType.ERROR);
         }
     }
 
-    // Alerta de erro genérico
-    private void showErrorDialog(String message, Exception ex) {
-        Alert alert = new Alert(Alert.AlertType.ERROR);
-        alert.setTitle("Erro");
-        alert.setHeaderText(message);
-        alert.setContentText(ex.getMessage());
-        alert.showAndWait();
-    }
-
+    /**
+     * Método chamado quando a aplicação JavaFX é encerrada.
+     * Garante o fechamento do contexto Spring Boot e a saída da plataforma JavaFX.
+     */
     @Override
     public void stop() {
-        if (springContext != null) {
-            springContext.close();
-        }
-        Platform.exit();
+        this.springContext.close(); // Fecha o contexto do Spring Boot
+        Platform.exit(); // Encerra a plataforma JavaFX
+    }
+
+    /**
+     * Ponto de entrada principal da aplicação.
+     * Lança a aplicação JavaFX.
+     * @param args Argumentos da linha de comando.
+     */
+    public static void main(String[] args) {
+        launch(args); // Método estático da classe Application para iniciar a aplicação JavaFX
     }
 }

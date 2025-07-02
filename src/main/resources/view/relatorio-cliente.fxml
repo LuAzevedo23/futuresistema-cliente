@@ -3,34 +3,33 @@
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
 <?import javafx.geometry.Insets?>
-<?import javafx.scene.text.Font?>
 
-<AnchorPane prefHeight="400.0" prefWidth="600.0" xmlns="http://javafx.com/javafx/17"
-            xmlns:fx="http://javafx.com/fxml/1"
-            fx:controller="com.devlu.futuresistema_cliente.controller.controllerFX.RelatorioClienteFXController">
-    <children>
-        <VBox fx:id="relatorioContainer" alignment="CENTER" layoutX="100.0"
-              layoutY="50.0" prefHeight="300.0" prefWidth="400.0" spacing="20.0">
-            <children>
-                <Label text="Relatório do Cliente" textFill="#36454F">
-                    <font>
-                        <Font name="Arial Bold" size="24.0" />
-                    </font>
-                </Label>
+<VBox xmlns="http://javafx.com/javafx/17"
+      xmlns:fx="http://javafx.com/fxml/1"
+      fx:controller="com.devlu.futuresistema_cliente.controller.controllerFX.RelatorioClienteFXController"
+      styleClass="root, report-container"
+      stylesheets="@/css/styles.css"
+      alignment="CENTER"
+      spacing="20.0">
 
-                <TextArea fx:id="relatorioTextArea" prefHeight="200.0" prefWidth="350.0" wrapText="true" />
+    <padding>
+        <Insets bottom="20.0" left="20.0" right="20.0" top="20.0"/>
+    </padding>
 
-                <!-- Adicionando os botões de imprimir e gerar PDF -->
-                <HBox alignment="CENTER" spacing="20.0">
-                    <children>
-                        <Button mnemonicParsing="false" text="Imprimir" onAction="#imprimirRelatorio" />
-                        <Button mnemonicParsing="false" text="Gerar PDF" onAction="#gerarPDF" />
-                    </children>
-                </HBox>
-            </children>
-            <padding>
-                <Insets bottom="20.0" left="20.0" right="20.0" top="20.0" />
-            </padding>
-        </VBox>
-    </children>
-</AnchorPane>
+    <!-- Título do Relatório -->
+    <Label text="Relatório Detalhado do Cliente" styleClass="report-title"/>
+
+    <!-- Label para exibir o nome específico do cliente -->
+    <Label fx:id="clientNameReportLabel" text="Cliente: [Carregando...]" styleClass="report-subtitle"/>
+
+    <!-- Área de texto para o conteúdo do relatório -->
+    <TextArea fx:id="relatorioTextArea" prefHeight="200.0" prefWidth="350.0" wrapText="true" editable="false"
+              styleClass="text-area" VBox.vgrow="ALWAYS"/> <!-- Garante que a TextArea cresça verticalmente -->
+
+    <!-- HBox para os botões de ação -->
+    <HBox alignment="CENTER" spacing="20.0">
+        <Button mnemonicParsing="false" text="Voltar à Lista" styleClass="btn-secondary"
+                onAction="#voltarParaListaClientes"/>
+    </HBox>
+
+</VBox>

@@ -28,7 +28,8 @@ public class RelatorioClienteController {
      */
     @GetMapping("/tela")
     public ModelAndView exibirRelatorioTela() {
-        List<ClienteDTO> clientes = clienteService.findAllClientes();
+        // ALTERAÇÃO: Chamando findAll() em vez de findAllClientes()
+        List<ClienteDTO> clientes = clienteService.findAll();
         ModelAndView mv = new ModelAndView("relatorioClientesTela");
         mv.addObject("clientes", clientes);
         return mv;

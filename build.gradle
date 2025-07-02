@@ -1,92 +1,147 @@
+// ADIÇÃO: Importa DuplicatesStrategy para lidar com arquivos duplicados no JAR
+import org.gradle.api.file.DuplicatesStrategy
+
 plugins {
-	id 'java'
-	id 'org.springframework.boot' version '3.2.5' // Verifique sempre por atualizações
-	id 'io.spring.dependency-management' version '1.1.4'
-	id 'org.openjfx.javafxplugin' version '0.0.14'
-	id 'application'
+    id 'java'
+    id 'org.springframework.boot' version '3.2.5'
+    id 'io.spring.dependency-management' version '1.1.4'
+    id 'application' // Para 'gradle run' e empacotamento
+    id 'org.openjfx.javafxplugin' version '0.0.14' // Plugin JavaFX
 }
 
 group = 'com.devlu'
 version = '0.0.1-SNAPSHOT'
 
-application {
-	mainClass = 'com.devlu.futuresistema_cliente.AppLauncher'
-	applicationName = 'futuresistema_cliente'
-}
-
+// Garante que a aplicação use o Java 17
 java {
-	toolchain {
-		languageVersion = JavaLanguageVersion.of(17)
-	}
+    sourceCompatibility = JavaVersion.VERSION_17
 }
 
-configurations {
-	compileOnly {
-		extendsFrom annotationProcessor
-	}
-}
-
+// 1. ONDE ENCONTRAR AS DEPENDÊNCIAS (MUITO IMPORTANTE!)
 repositories {
-	mavenCentral()
+    mavenCentral() // O repositório Maven Central é o padrão para a maioria das bibliotecas Java.
 }
 
+// Configurações de compilação, útil para Lombok se estiver usando
+configurations {
+    compileOnly {
+        extendsFrom annotationProcessor
+    }
+}
+
+// 2. DECLARAÇÃO DE DEPENDÊNCIAS
 dependencies {
-	implementation 'org.springframework.boot:spring-boot-starter-web'
-	implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
-	implementation 'org.springframework.boot:spring-boot-starter-validation'
-	implementation 'org.openjfx:javafx-controls:17.0.2'
-	implementation 'org.openjfx:javafx-fxml:17.0.2'
-	implementation 'org.openjfx:javafx-graphics:17.0.2'
-	runtimeOnly 'org.openjfx:javafx-web:17.0.2'
-	compileOnly 'org.projectlombok:lombok'
-	annotationProcessor 'org.projectlombok:lombok'
-	runtimeOnly 'com.h2database:h2'
-	runtimeOnly 'org.postgresql:postgresql'
-	testImplementation 'org.springframework.boot:spring-boot-starter-test'
-	testImplementation 'org.springframework.security:spring-security-test'
-	testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
-	implementation 'com.itextpdf:itext7-core:7.2.5'
+    // Spring Boot Starters - Adicione os que você realmente precisa
+    implementation 'org.springframework.boot:spring-boot-starter' // Core do Spring Boot
+    implementation 'org.springframework.boot:spring-boot-starter-web' // Se você usa endpoints REST, mantenha. Se apenas JavaFX, pode ser removido para um app mais leve.
+    implementation 'org.springframework.boot:spring-boot-starter-data-jpa' // Para JPA/Hibernate
+    implementation 'org.springframework.boot:spring-boot-starter-validation' // Para validação de DTOs e entidades
+
+    // ModelMapper para mapeamento de objetos
+    implementation 'org.modelmapper:modelmapper:3.1.1' // Mantenha a versão que você tinha
+
+    // Lombok (ferramenta que gera código boilerplate, muito útil)
+    compileOnly 'org.projectlombok:lombok'
+    annotationProcessor 'org.projectlombok:lombok'
+
+    // Drivers de Banco de Dados
+    runtimeOnly 'com.h2database:h2'
+    runtimeOnly 'org.postgresql:postgresql'
+
+    // DEPENDÊNCIAS JAVAFX CRUCIAIS
+    // Estas são as que garantem que classes como Label, Button, TextArea e,
+    // FUNDAMENTALMENTE, a anotação @FXML, estejam disponíveis.
+    // O plugin 'org.openjfx.javafxplugin' trabalha em conjunto com estas.
+    implementation 'org.openjfx:javafx-controls:17.0.2' // Para componentes de UI básicos (botões, labels, textareas)
+    implementation 'org.openjfx:javafx-fxml:17.0.2'     // Para o parser FXML e a anotação @FXML
+    // REMOÇÃO: 'org.openjfx:javafx-print:17.0.2' removido temporariamente.
+
+    // REMOÇÃO: iTextpdf foi removido temporariamente, optei por remover a funcionalidade de impressão
+    // por enquanto devido a problemas de download. Reative quando o problema de rede for resolvido
+    // ou se mudar para uma estratégia de impressão que o exija.
+    // implementation 'com.itextpdf:itext7-core:8.0.4'
+
+    // Dependências para testes
+    testImplementation 'org.springframework.boot:spring-boot-starter-test'
+    testImplementation 'org.springframework.security:spring-security-test' // Manter se usar Spring Security
+    testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
+
+    // ADIÇÃO: Devtools para recarga automática em desenvolvimento
+    developmentOnly 'org.springframework.boot:spring-boot-devtools'
 }
 
+// 3. CONFIGURAÇÃO DO PLUGIN JAVAFX
+// Este bloco é CRÍTICO! Ele informa ao 'javafxplugin' quais módulos JavaFX seu aplicativo utiliza.
+// O plugin usa essas informações para configurar o module-path da JVM corretamente
+// durante as tarefas de build e execução.
 javafx {
-	version = "17.0.2"
-	modules = [ 'javafx.controls', 'javafx.fxml', 'javafx.graphics', 'javafx.web' ]
-
+    version = "17.0.2" // Garanta que esta versão CORRESPONDA às suas dependências javafx-* acima.
+    // Se você usou 'implementation 'org.openjfx:javafx-controls'', sem versão explícita
+    // (o que é gerenciado pelo `dependency-management` do Spring Boot),
+    // esta versão aqui instrui o plugin sobre qual versão usar.
+    // ADIÇÃO: Módulos JavaFX. Eles precisam ser listados aqui!
+    modules = ['javafx.controls', 'javafx.fxml'] // ALTERAÇÃO: 'javafx.print' removido.
 }
 
-
-// Definindo a tarefa JavaExec corretamente
-tasks.register('runJavaFX', JavaExec) {
-	group = 'application'
-	description = 'Runs the JavaFX application'
-	mainClass = application.mainClass
-	classpath = sourceSets.main.runtimeClasspath
-	standardInput = System.in
-
-	// Adicionando argumentos JVM para o runtime do JavaFX
-	jvmArgs = [
-			'--module-path', classpath.asPath,
-			'--add-modules', 'javafx.controls,javafx.fxml,javafx.graphics,javafx.web',
-			'--add-opens', 'java.base/java.lang=ALL-UNNAMED'
-	]
+// 4. CONFIGURAÇÃO DA APLICAÇÃO (como ela será executada por 'gradle run' ou JARs)
+application {
+    // Esta é a classe principal que o Gradle vai tentar executar quando você fizer 'gradle run'
+    // ou quando ele empacotar seu JAR.
+    // Para um aplicativo híbrido Spring Boot + JavaFX, esta mainClass deve ser a que
+    // contém o método 'public static void main(String[] args)' que inicia TUDO.
+    // Se seu 'AppLauncher' é a classe que estende `javafx.application.Application` E
+    // também é responsável por carregar o contexto Spring, então está correto aqui.
+    mainClass = 'com.devlu.futuresistema_cliente.AppLauncher'
+    applicationName = 'futuresistema_cliente'
 }
 
-// Modificando a tarefa 'run' padrão para configurar o JavaFX runtime
-tasks.named('run') {
-	doFirst {
-		jvmArgs = [
-				'--module-path', classpath.asPath,
-				'--add-modules', 'javafx.controls,javafx.fxml,javafx.graphics,javafx.web',
-				'--add-opens', 'java.base/java.lang=ALL-UNNAMED'
-		]
-	}
+// 5. CONFIGURAÇÃO PARA O 'bootRun' (ABSOLUTAMENTE CRÍTICA para Spring Boot + JavaFX!)
+// ADIÇÃO: Este bloco é essencial para garantir que as anotações @FXML sejam reconhecidas
+// em tempo de execução quando você usa `gradle bootRun`.
+// A tarefa 'bootRun' (fornecida pelo plugin Spring Boot) por padrão não está ciente dos
+// requisitos do sistema de módulos do JavaFX.
+tasks.named('bootRun') {
+    // 'doFirst' garante que esta configuração seja aplicada antes que a tarefa principal comece.
+    doFirst {
+        // Verifica se a mainClass é a sua AppLauncher
+        if (project.hasProperty('mainClassName') && project.property('mainClassName').toString().contains('AppLauncher')) {
+            // Adiciona as bibliotecas JavaFX ao --module-path e informa quais módulos carregar.
+            // Isso é o que a JVM precisa para encontrar as classes JavaFX e processar @FXML.
+            jvmArgs = [
+                    "--module-path", classpath.asPath, // Adiciona TODAS as dependências ao module-path
+                    // ADIÇÃO: Liste aqui os mesmos módulos que você colocou no bloco 'javafx'.
+                    "--add-modules", "javafx.controls,javafx.fxml" // ALTERAÇÃO: 'javafx.print' removido.
+            ]
+            // Limpa o classpath padrão para evitar conflitos quando estamos usando --module-path.
+            classpath = files()
+        }
+    }
 }
 
-tasks.named('test') {
-	useJUnitPlatform()
+// Configuração para a tarefa 'compileJava'
+compileJava {
+    options.encoding = 'UTF-8'
+    options.compilerArgs += ["-parameters"]
 }
 
-tasks.withType(JavaCompile) {
-	options.encoding = 'UTF-8'
+// Configuração para a tarefa 'test'
+test {
+    useJUnitPlatform()
 }
 
+// ADIÇÃO: Configuração para empacotar o JAR executável (opcional, mas útil para distribuição)
+jar {
+    // ADIÇÃO: Define a estratégia para lidar com arquivos duplicados: excluí-los.
+    duplicatesStrategy = DuplicatesStrategy.EXCLUDE
+    manifest {
+        attributes 'Main-Class': application.mainClass
+    }
+    // Inclui as dependências JavaFX no JAR (ou em uma pasta separada para modularidade)
+    from {
+        configurations.runtimeClasspath.collect { it.isDirectory() ? it : zipTree(it) }
+    } {
+        exclude 'META-INF/*.SF'
+        exclude 'META-INF/*.DSA'
+        exclude 'META-INF/*.RSA'
+    }
+}

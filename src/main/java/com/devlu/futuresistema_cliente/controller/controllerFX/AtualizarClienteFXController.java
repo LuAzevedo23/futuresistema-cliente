@@ -1,109 +1,189 @@
 package com.devlu.futuresistema_cliente.controller.controllerFX;
 
-import com.devlu.futuresistema_cliente.api.ClienteRequestDTO;
 import com.devlu.futuresistema_cliente.business.ClienteService;
-import com.devlu.futuresistema_cliente.business.ResourceNotFoundException;
+import com.devlu.futuresistema_cliente.controller.controllerFX.callbacks.ClientManagementCallback;
 import com.devlu.futuresistema_cliente.controller.dto.ClienteDTO;
+import com.devlu.futuresistema_cliente.controller.dto.EnderecoDTO;
 import com.devlu.futuresistema_cliente.utils.Notificacao;
+import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
+import javafx.fxml.Initializable;
 import javafx.scene.control.Alert;
-import javafx.scene.control.Label;
+import javafx.scene.control.ComboBox;
 import javafx.scene.control.TextField;
+import javafx.stage.Stage;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+import java.net.URL;
+import java.util.ResourceBundle;
+
+/**
+ * Controlador para a tela de atualização (edição) de cliente.
+ * Gerencia o formulário para editar clientes existentes.
+ */
 @Component
-public class AtualizarClienteFXController {
+public class AtualizarClienteFXController implements Initializable {
 
     @FXML
-    private TextField idTextField;
-
+    private TextField idField; // Campo para exibir o ID (não editável)
     @FXML
-    private TextField nomeTextField;
-
+    private TextField nomeField;
     @FXML
-    private TextField emailTextField;
-
+    private TextField emailField;
     @FXML
-    private TextField telefoneTextField;
-
+    private TextField telefoneField;
     @FXML
-    private Label mensagemLabel;
+    private ComboBox<String> statusComboBox; // ComboBox para o status
+    @FXML
+    private TextField cepField;
+    @FXML
+    private TextField logradouroField;
+    @FXML
+    private TextField numeroField;
+    @FXML
+    private TextField complementoField;
+    @FXML
+    private TextField bairroField;
+    @FXML
+    private TextField cidadeField;
+    @FXML
+    private TextField estadoField;
 
     @Autowired
     private ClienteService clienteService;
 
-    @FXML
-    public void carregarDadosCliente() {
-        String idText = idTextField.getText();
-        if (idText == null || idText.trim().isEmpty()) {
-            Notificacao.exibirMensagem("Erro", "ID Inválido",
-                    "Por favor, insira um ID válido para carregar os dados do cliente.", Alert.AlertType.ERROR);
-            return;
-        }
+    private ClientManagementCallback callback;
+    private ClienteDTO clienteAtual; // Cliente que está sendo editado
 
-        try {
-            Long id = Long.parseLong(idText);
-            ClienteDTO cliente = clienteService.findById(id);
+    /**
+     * Define o callback para permitir que este controlador se comunique com o controlador pai.
+     * @param callback A instância do callback.
+     */
+    public void setCallback(ClientManagementCallback callback) {
+        this.callback = callback;
+    }
 
-            if (cliente != null) {
-                nomeTextField.setText(cliente.getNome());
-                emailTextField.setText(cliente.getEmail());
-                telefoneTextField.setText(cliente.getTelefone());
+    /**
+     * Define o cliente a ser editado e preenche os campos do formulário.
+     * @param cliente O ClienteDTO a ser carregado no formulário.
+     */
+    public void setClienteParaEditar(ClienteDTO cliente) {
+        this.clienteAtual = cliente;
+        if (cliente != null) {
+            idField.setText(String.valueOf(cliente.getId()));
+            nomeField.setText(cliente.getNome());
+            emailField.setText(cliente.getEmail());
+            telefoneField.setText(cliente.getTelefone());
+            statusComboBox.getSelectionModel().select(cliente.getStatus());
+
+            if (cliente.getEndereco() != null) {
+                EnderecoDTO endereco = cliente.getEndereco();
+                cepField.setText(endereco.getCep());
+                logradouroField.setText(endereco.getLogradouro());
+                // Garante que numeroField exiba um String vazia se o número for nulo
+                numeroField.setText(endereco.getNumero() != null ? String.valueOf(endereco.getNumero()) : "");
+                complementoField.setText(endereco.getComplemento());
+                bairroField.setText(endereco.getBairro());
+                cidadeField.setText(endereco.getCidade());
+                estadoField.setText(endereco.getEstado());
             } else {
-                Notificacao.exibirMensagem("Erro", "Cliente Não Encontrado",
-                        "Não foi possível encontrar um cliente com o ID " + id + ".", Alert.AlertType.ERROR);
-                mensagemLabel.setText("Cliente não encontrado!");
+                // Limpa os campos de endereço se não houver endereço associado
+                cepField.setText("");
+                logradouroField.setText("");
+                numeroField.setText("");
+                complementoField.setText("");
+                bairroField.setText("");
+                cidadeField.setText("");
+                estadoField.setText("");
             }
-        } catch (NumberFormatException e) {
-            Notificacao.exibirMensagem("Erro", "ID Inválido",
-                    "Por favor, insira um ID numérico válido.", Alert.AlertType.ERROR);
-        } catch (ResourceNotFoundException e) {
-            Notificacao.exibirMensagem("Erro", "Cliente Não Encontrado",
-                    e.getMessage(), Alert.AlertType.ERROR);
-            mensagemLabel.setText("Cliente não encontrado!");
-        } catch (Exception e) {
-            Notificacao.exibirMensagem("Erro", "Erro ao Carregar Cliente",
-                    "Ocorreu um erro ao carregar os dados do cliente.", Alert.AlertType.ERROR);
         }
     }
 
-    @FXML
-    public void atualizarCliente() {
-        String idText = idTextField.getText();
-        String nome = nomeTextField.getText();
-        String email = emailTextField.getText();
-        String telefone = telefoneTextField.getText();
+    @Override
+    public void initialize(URL url, ResourceBundle rb) {
+        // Inicializa o ComboBox de status
+        statusComboBox.getItems().addAll("ATIVO", "INATIVO", "EXCLUIDO");
+        // O campo ID geralmente não é editável, então podemos desabilitá-lo.
+        idField.setEditable(false);
+    }
 
-        if (idText == null || idText.trim().isEmpty() || nome == null || nome.trim().isEmpty() || email == null || email.trim().isEmpty() || telefone == null || telefone.trim().isEmpty()) {
-            Notificacao.exibirMensagem("Erro", "Dados Inválidos",
-                    "Por favor, preencha todos os campos para atualizar o cliente.", Alert.AlertType.ERROR);
+    /**
+     * Atualiza o cliente no banco de dados com os dados do formulário.
+     * @param event Evento de ação.
+     */
+    @FXML
+    public void atualizarCliente(ActionEvent event) {
+        if (clienteAtual == null) {
+            Notificacao.exibirMensagem("Erro", "Nenhum Cliente Selecionado", "Não há cliente para atualizar.", Alert.AlertType.ERROR);
             return;
         }
 
         try {
-            Long id = Long.parseLong(idText);
-            ClienteRequestDTO clienteRequestDTO = new ClienteRequestDTO();
-            clienteRequestDTO.setNome(nome);
-            clienteRequestDTO.setEmail(email);
-            clienteRequestDTO.setTelefone(telefone);
+            // Atualiza o objeto ClienteDTO com os novos dados do formulário
+            clienteAtual.setNome(nomeField.getText());
+            clienteAtual.setEmail(emailField.getText());
+            clienteAtual.setTelefone(telefoneField.getText());
+            clienteAtual.setStatus(statusComboBox.getValue());
 
-            ClienteDTO clienteAtualizado = clienteService.update(id, clienteRequestDTO);
+            // Atualiza ou cria o EnderecoDTO
+            EnderecoDTO endereco = clienteAtual.getEndereco();
+            if (endereco == null) {
+                endereco = new EnderecoDTO();
+                clienteAtual.setEndereco(endereco);
+            }
+            endereco.setCep(cepField.getText());
+            endereco.setLogradouro(logradouroField.getText());
+            // Converte o texto do número para Long, tratando campo vazio como null
+            endereco.setNumero(numeroField.getText().isEmpty() ? null : Long.valueOf(numeroField.getText()));
+            endereco.setComplemento(complementoField.getText());
+            endereco.setBairro(bairroField.getText());
+            endereco.setCidade(cidadeField.getText());
+            endereco.setEstado(estadoField.getText());
 
-            Notificacao.exibirMensagem("Sucesso", "Cliente Atualizado",
-                    "O cliente " + nome + " foi atualizado com sucesso!", Alert.AlertType.INFORMATION);
-            mensagemLabel.setText("Cliente atualizado com sucesso!");
+            // Chama o serviço para atualizar o cliente
+            // Esta chamada agora deve funcionar com o método update(ClienteDTO) no ClienteService
+            clienteService.update(clienteAtual);
+
+            Notificacao.exibirMensagem("Sucesso", "Cliente Atualizado", "Cliente " + clienteAtual.getNome() + " atualizado com sucesso!", Alert.AlertType.INFORMATION);
+
+            // Fecha a janela ou aba atual e volta para a lista principal
+            fecharJanelaOuAba(event);
+            if (callback != null) {
+                callback.refreshClientList(); // Atualiza a lista no controlador pai
+                callback.selectClientListTab(); // Volta para a aba da lista
+            }
+
         } catch (NumberFormatException e) {
-            Notificacao.exibirMensagem("Erro", "ID Inválido",
-                    "Por favor, insira um ID numérico válido.", Alert.AlertType.ERROR);
-        } catch (ResourceNotFoundException e) {
-            Notificacao.exibirMensagem("Erro", "Cliente Não Encontrado",
-                    e.getMessage(), Alert.AlertType.ERROR);
-            mensagemLabel.setText("Cliente não encontrado!");
+            Notificacao.exibirMensagem("Erro de Entrada", "Erro no Número", "O campo 'Número' deve conter apenas números válidos. Detalhes: " + e.getMessage(), Alert.AlertType.ERROR);
+        } catch (IllegalArgumentException e) {
+            // Captura validações lançadas pelo ClienteService
+            Notificacao.exibirMensagem("Erro de Validação", "Dados Inválidos", e.getMessage(), Alert.AlertType.ERROR);
         } catch (Exception e) {
-            Notificacao.exibirMensagem("Erro", "Erro ao Atualizar Cliente",
-                    "Ocorreu um erro ao atualizar o cliente " + nome + ".", Alert.AlertType.ERROR);
-            mensagemLabel.setText("Erro ao atualizar cliente!");
+            Notificacao.exibirMensagem("Erro", "Erro ao Atualizar Cliente", "Ocorreu um erro inesperado ao atualizar o cliente. Detalhes: " + e.getMessage(), Alert.AlertType.ERROR);
+            e.printStackTrace();
         }
+    }
+
+    /**
+     * Cancela a operação e fecha a tela atual.
+     * @param event Evento de ação.
+     */
+    @FXML
+    public void cancelar(ActionEvent event) {
+        fecharJanelaOuAba(event);
+        if (callback != null) {
+            callback.selectClientListTab(); // Volta para a aba da lista
+        }
+    }
+
+    /**
+     * Método auxiliar para fechar a janela ou aba atual.
+     * @param event Evento de ação.
+     */
+    private void fecharJanelaOuAba(ActionEvent event) {
+        // Usa qualquer campo para obter a cena e o estágio
+        Stage stage = (Stage) nomeField.getScene().getWindow();
+        stage.close();
     }
 }

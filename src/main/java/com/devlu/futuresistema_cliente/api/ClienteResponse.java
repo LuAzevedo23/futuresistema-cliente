@@ -31,7 +31,7 @@ public class ClienteResponse {
     private String telefone;
 
     /**
-     * Endereço físico do cliente.
+     * ADIÇÃO/ALTERAÇÃO: Endereço físico do cliente, agora como um objeto EnderecoResponse.
      */
-    private String endereco;
+    private EnderecoResponse endereco; // ALTERAÇÃO: De String para EnderecoResponse
 }

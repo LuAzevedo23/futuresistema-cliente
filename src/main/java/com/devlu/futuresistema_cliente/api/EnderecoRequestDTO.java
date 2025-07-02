@@ -1,67 +1,79 @@
 package com.devlu.futuresistema_cliente.api;
 
-import jakarta.validation.constraints.NotEmpty;
-import jakarta.validation.constraints.Size;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import com.devlu.futuresistema_cliente.entities.StatusEndereco;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.Pattern;
 
 /**
- * Classe que define os campos necessários para cadastrar ou atualizar um endereço.
- *
- * <p>Esta classe utiliza anotações de validação para garantir que os dados recebidos sejam válidos.</p>
+ * DTO (Data Transfer Object) para representar os dados de entrada
+ * de uma requisição de endereço.
  */
-@Data
-@Builder
-@NoArgsConstructor
-@AllArgsConstructor
 public class EnderecoRequestDTO {
 
-    /**
-     * CEP do endereço.
-     */
-    @NotEmpty(message = "O CEP não pode estar vazio")
-    @Size(min = 8, max = 9, message = "O CEP deve ter 8 ou 9 caracteres")
+    // O ID pode ser nulo se for um novo endereço, ou preenchido para atualização
+    private Long id;
+
+    @NotBlank(message = "O CEP é obrigatório.")
+    @Pattern(regexp = "^/d{5}-?/d{3}$", message = "Formato de CEP inválido. Use XXXXX-XXX ou XXXXXXXX.")
     private String cep;
 
-    /**
-     * Logradouro do endereço.
-     */
-    @NotEmpty(message = "O logradouro não pode estar vazio")
+    @NotBlank(message = "O logradouro é obrigatório.")
     private String logradouro;
 
     /**
-     * Número do endereço.
+     * Número do endereço. Pode ser nulo.
      */
-    private String numero;
+    private Long numero;
 
     /**
-     * Complemento do endereço.
+     * Complemento do endereço. Pode ser nulo.
      */
     private String complemento;
 
-    /**
-     * Bairro do endereço.
-     */
-    @NotEmpty(message = "O bairro não pode estar vazio")
+    @NotBlank(message = "O bairro é obrigatório.")
     private String bairro;
 
-    /**
-     * Cidade do endereço.
-     */
-    @NotEmpty(message = "A cidade não pode estar vazia")
+    @NotBlank(message = "A cidade é obrigatória.")
     private String cidade;
 
-    /**
-     * Estado do endereço.
-     */
-    @NotEmpty(message = "O estado não pode estar vazio")
-    @Size(min = 2, max = 2, message = "O estado deve ter 2 caracteres")
+    @NotBlank(message = "O estado é obrigatório.")
     private String estado;
 
     /**
-     * Status do endereço.
+     * Status do endereço (ATIVO, INATIVO, EXCLUIDO).
      */
-    private String status;
+    @NotBlank(message = "O status do endereço é obrigatório.")
+    @Pattern(regexp = "ATIVO|INATIVO|EXCLUIDO", message = "Status inválido. Use ATIVO, INATIVO ou EXCLUIDO.")
+    private String status; // AGORA PRESENTE!
+
+    // Construtor padrão
+    public EnderecoRequestDTO() {}
+
+    // --- Getters e Setters ---
+    public Long getId() { return id; }
+    public void setId(Long id) { this.id = id; }
+
+    public String getCep() { return cep; }
+    public void setCep(String cep) { this.cep = cep; }
+
+    public String getLogradouro() { return logradouro; }
+    public void setLogradouro(String logradouro) { this.logradouro = logradouro; }
+
+    public Long getNumero() { return numero; }
+    public void setNumero(Long numero) { this.numero = numero; }
+
+    public String getComplemento() { return complemento; }
+    public void setComplemento(String complemento) { this.complemento = complemento; }
+
+    public String getBairro() { return bairro; }
+    public void setBairro(String bairro) { this.bairro = bairro; }
+
+    public String getCidade() { return cidade; }
+    public void setCidade(String cidade) { this.cidade = cidade; }
+
+    public String getEstado() { return estado; }
+    public void setEstado(String estado) { this.estado = estado; }
+
+    public String getStatus() { return status; } // NOVO: Getter para o status
+    public void setStatus(String status) { this.status = status; } // NOVO: Setter para o status
 }

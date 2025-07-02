@@ -1,84 +1,95 @@
+
 package com.devlu.futuresistema_cliente.api;
 
 import jakarta.validation.constraints.Email;
-import jakarta.validation.constraints.NotEmpty;
-import jakarta.validation.constraints.Size;
-import lombok.AllArgsConstructor;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Pattern;
+import jakarta.validation.Valid; // Importe para validar objetos aninhados
 import lombok.Builder;
 import lombok.Data;
-import lombok.NoArgsConstructor;
 
 /**
- * Classe que define os campos necessários para cadastrar ou atualizar um cliente.
- *
- * <p>Esta classe utiliza anotações de validação para garantir que os dados recebidos sejam válidos.</p>
+ * DTO (Data Transfer Object) para representar os dados de entrada
+ * de uma requisição de criação ou atualização de cliente.
+ * Contém validações para garantir a integridade dos dados recebidos.
  */
-@Data
-@Builder
-@NoArgsConstructor
-@AllArgsConstructor
 public class ClienteRequestDTO {
 
-    /**
-     * Nome completo do cliente.
-     */
-    @NotEmpty(message = "O nome não pode estar vazio")
-    @Size(min = 3, max = 255, message = "O nome deve ter entre 3 e 255 caracteres")
+    @NotBlank(message = "O nome é obrigatório.")
     private String nome;
 
-    /**
-     * Endereço de email do cliente.
-     */
-    @NotEmpty(message = "O email não pode estar vazio")
-    @Email(message = "Email inválido")
+    @NotBlank(message = "O e-mail é obrigatório.")
+    @Email(message = "Formato de e-mail inválido.")
     private String email;
 
-    /**
-     * Número de telefone do cliente.
-     */
-    @NotEmpty(message = "O telefone não pode estar vazio")
-    @Size(min = 8, max = 15, message = "O telefone deve ter entre 8 e 15 caracteres")
+    @NotBlank(message = "O telefone é obrigatório.")
+    // CORREÇÃO FINAL AQUI: TODAS as barras invertidas para regex estão DUPLICADAS
+    // Explicação:
+    // ^      : Início da string
+    // \(?   : Parêntese de abertura opcional (o '\(' é o literal parêntese, e o '?' o torna opcional)
+    // \d{2} : Dois dígitos (o '\d' é para dígito, e o '{2}' significa 2 ocorrências)
+    // \)?   : Parêntese de fechamento opcional
+    // \s*   : Zero ou mais caracteres de espaço em branco (o '\s' é para espaço em branco)
+    // \d{4,5}: Quatro ou cinco dígitos
+    // -?     : Hífen opcional
+    // \d{4} : Quatro dígitos
+    // $      : Fim da string
+    @Pattern(regexp = "^/(?/d{2}/')'?/s*/d{4,5}-?/d{4}$", message =
+            "Formato de telefone inválido. Ex: (DD) XXXXX-XXXX")
     private String telefone;
 
-    /**
-     * CEP do endereço.
-     */
-    @NotEmpty(message = "O CEP não pode estar vazio")
-    @Size(min = 8, max = 9, message = "O CEP deve ter 8 ou 9 caracteres")
-    private String cep;
+    @NotBlank(message = "O status é obrigatório.")
+    @Pattern(regexp = "ATIVO|INATIVO|EXCLUIDO", message =
+            "Status inválido. Use ATIVO, INATIVO ou EXCLUIDO.")
+    private String status;
 
-    /**
-     * Logradouro do endereço.
-     */
-    @NotEmpty(message = "O logradouro não pode estar vazio")
-    private String logradouro;
+    @Valid // Valida o objeto EnderecoRequestDTO aninhado
+    @NotNull(message = "Os dados de endereço são obrigatórios.")
+    private EnderecoRequestDTO endereco;
 
-    /**
-     * Número do endereço.
-     */
-    private String numero;
+    // Construtor padrão
+    public ClienteRequestDTO() {
+    }
 
-    /**
-     * Complemento do endereço.
-     */
-    private String complemento;
+    // Getters e Setters
+    public String getNome() {
+        return nome;
+    }
 
-    /**
-     * Bairro do endereço.
-     */
-    @NotEmpty(message = "O bairro não pode estar vazio")
-    private String bairro;
+    public void setNome(String nome) {
+        this.nome = nome;
+    }
 
-    /**
-     * Cidade do endereço.
-     */
-    @NotEmpty(message = "A cidade não pode estar vazia")
-    private String cidade;
+    public String getEmail() {
+        return email;
+    }
 
-    /**
-     * Estado do endereço.
-     */
-    @NotEmpty(message = "O estado não pode estar vazio")
-    @Size(min = 2, max = 2, message = "O estado deve ter 2 caracteres")
-    private String estado;
+    public void setEmail(String email) {
+        this.email = email;
+    }
+
+    public String getTelefone() {
+        return telefone;
+    }
+
+    public void setTelefone(String telefone) {
+        this.telefone = telefone;
+    }
+
+    public String getStatus() {
+        return status;
+    }
+
+    public void setStatus(String status) {
+        this.status = status;
+    }
+
+    public EnderecoRequestDTO getEndereco() {
+        return endereco;
+    }
+
+    public void setEndereco(EnderecoRequestDTO endereco) {
+        this.endereco = endereco;
+    }
 }
