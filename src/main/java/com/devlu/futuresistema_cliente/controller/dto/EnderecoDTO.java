@@ -1,6 +1,7 @@
 package com.devlu.futuresistema_cliente.controller.dto;
 
 import com.devlu.futuresistema_cliente.entities.Endereco;
+import com.devlu.futuresistema_cliente.entities.StatusEndereco; // <--- AJUSTE: Importe o StatusEndereco
 
 /**
  * Classe DTO (Data Transfer Object) para transferir dados de endereços.
@@ -16,7 +17,7 @@ public class EnderecoDTO {
     private String bairro;
     private String cidade;
     private String estado;
-    private String status;
+    private String status; // <--- OK: O status no DTO DEVE ser String para a UI
 
     // Construtor padrão
     public EnderecoDTO() {
@@ -32,7 +33,10 @@ public class EnderecoDTO {
         this.bairro = endereco.getBairro();
         this.cidade = endereco.getCidade();
         this.estado = endereco.getEstado();
-        this.status = endereco.getStatus();
+        // --- AJUSTE DIDÁTICO: Converte o Enum da entidade para String do DTO ---
+        // Aqui, convertemos o StatusEndereco (enum) para String (.name()) para que o DTO
+        // possa ser usado na UI (JavaFX) que espera Strings.
+        this.status = (endereco.getStatus() != null) ? endereco.getStatus().name() : null; // <--- AJUSTE
     }
 
     // --- Getters e Setters ---

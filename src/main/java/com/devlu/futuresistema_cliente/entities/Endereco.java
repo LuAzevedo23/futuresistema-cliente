@@ -16,35 +16,37 @@ public class Endereco {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(nullable = false)
     private String cep;
-
-    @Column(nullable = false)
     private String logradouro;
-
-    private Long numero; // Pode ser nulo
-
+    private Long numero; // Se for String para S/N, mude para String e remova o NumberFormatException na UI
     private String complemento;
-
-    @Column(nullable = false)
     private String bairro;
-
-    @Column(nullable = false)
     private String cidade;
-
-    @Column(nullable = false)
     private String estado;
 
-    /**
-     * Status do endereço.
-     */
-    private String status;
+    // --- AJUSTE CRUCIAL AQUI: O TIPO DO ATRIBUTO 'status' DEVE SER UM ENUM ---
+    @Enumerated(EnumType.STRING) // Permite que o Enum seja salvo como String no banco
+    @Column(nullable = false) // Opcional: Se o status não puder ser nulo no banco
+    private StatusEndereco status = StatusEndereco.ATIVO; // <--- AJUSTE 1: Tipo mudou para StatusEndereco
+    // <--- AJUSTE 2: Valor padrão ATIVO para novos registros
 
-    // Construtor padrão (necessário para JPA)
+    // Construtor vazio (necessário para JPA)
     public Endereco() {
     }
 
-    // --- Getters e Setters ---
+    // Construtor com todos os campos (opcional, mas útil)
+    public Endereco(String cep, String logradouro, Long numero, String complemento, String bairro, String cidade, String estado, StatusEndereco status) {
+        this.cep = cep;
+        this.logradouro = logradouro;
+        this.numero = numero;
+        this.complemento = complemento;
+        this.bairro = bairro;
+        this.cidade = cidade;
+        this.estado = estado;
+        this.status = status;
+    }
+
+    // Getters e Setters
     public Long getId() {
         return id;
     }
@@ -109,13 +111,14 @@ public class Endereco {
         this.estado = estado;
     }
 
-    public String getStatus() {
+    public StatusEndereco getStatus() { // <--- AJUSTE: Retorna StatusEndereco
         return status;
     }
 
-    public void setStatus(String status) {
+    public void setStatus(StatusEndereco status) { // <--- AJUSTE: Recebe StatusEndereco
         this.status = status;
     }
+
 
     @Override
     public boolean equals(Object o) {

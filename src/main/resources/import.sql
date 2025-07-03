@@ -1,13 +1,13 @@
-INSERT INTO tb_endereco (cep, logradouro, numero, complemento, bairro, cidade, estado) VALUES ('12245000', 'Rua XV de Novembro', 100, 'casa', 'Centro', 'São José dos Campos', 'SP');
-INSERT INTO tb_endereco (cep, logradouro, numero, complemento, bairro, cidade, estado) VALUES ('18080000', 'Av. Brasil', 200, 'Apto 10', 'Vila Hortência', 'Sorocaba', 'SP');
-INSERT INTO tb_endereco (cep, logradouro, numero, complemento, bairro, cidade, estado) VALUES ('14010000', 'Rua Prudente de Moraes', 300, 'Recanto', 'Centro', 'Ribeirão Preto', 'SP');
-INSERT INTO tb_endereco (cep, logradouro, numero, complemento, bairro, cidade, estado) VALUES ('15015000', 'Av. Getúlio Vargas', 400, 'condominio', 'Jardim Estoril', 'São José do Rio Preto', 'SP');
-INSERT INTO tb_endereco (cep, logradouro, numero, complemento, bairro, cidade, estado) VALUES ('19010000', 'Rua Tiradentes', 500, 'morada', 'Centro', 'Presidente Prudente', 'SP');
-INSERT INTO tb_endereco (cep, logradouro, numero, complemento, bairro, cidade, estado) VALUES ('13015000', 'Av. da Saudade', 600, 'vilarejo', 'Vila Santana', 'Campinas', 'SP');
-INSERT INTO tb_endereco (cep, logradouro, numero, complemento, bairro, cidade, estado) VALUES ('17500000', 'Rua São Bento', 700, 'casa', 'Centro', 'Marília', 'SP');
-INSERT INTO tb_endereco (cep, logradouro, numero, complemento, bairro, cidade, estado) VALUES ('13201000', 'Av. Nove de Julho', 800, 'Sala 2', 'Jardim Paulista', 'Jundiaí', 'SP');
-INSERT INTO tb_endereco (cep, logradouro, numero, complemento, bairro, cidade, estado) VALUES('13400000', 'Rua Duque de Caxias', 900, 'Flat', 'Centro', 'Piracicaba', 'SP');
-INSERT INTO tb_endereco (cep, logradouro, numero, complemento, bairro, cidade, estado) VALUES ('14801000', 'Av. Independência', 1000, 'Fazenda', 'Vila Tibério', 'Araraquara', 'SP');
+INSERT INTO tb_endereco (cep, logradouro, numero, complemento, bairro, cidade, estado, status) VALUES ('12245000', 'Rua XV de Novembro', 100, 'casa', 'Centro', 'São José dos Campos', 'SP', 'ATIVO');
+INSERT INTO tb_endereco (cep, logradouro, numero, complemento, bairro, cidade, estado, status) VALUES ('18080000', 'Av. Brasil', 200, 'Apto 10', 'Vila Hortência', 'Sorocaba', 'SP', 'ATIVO');
+INSERT INTO tb_endereco (cep, logradouro, numero, complemento, bairro, cidade, estado, status) VALUES ('14010000', 'Rua Prudente de Moraes', 300, 'Recanto', 'Centro', 'Ribeirão Preto', 'SP', 'ATIVO');
+INSERT INTO tb_endereco (cep, logradouro, numero, complemento, bairro, cidade, estado, status) VALUES ('15015000', 'Av. Getúlio Vargas', 400, 'condominio', 'Jardim Estoril', 'São José do Rio Preto', 'SP', 'ATIVO');
+INSERT INTO tb_endereco (cep, logradouro, numero, complemento, bairro, cidade, estado, status) VALUES ('19010000', 'Rua Tiradentes', 500, 'morada', 'Centro', 'Presidente Prudente', 'SP', 'ATIVO');
+INSERT INTO tb_endereco (cep, logradouro, numero, complemento, bairro, cidade, estado, status) VALUES ('13015000', 'Av. da Saudade', 600, 'vilarejo', 'Vila Santana', 'Campinas', 'SP', 'ATIVO');
+INSERT INTO tb_endereco (cep, logradouro, numero, complemento, bairro, cidade, estado, status) VALUES ('17500000', 'Rua São Bento', 700, 'casa', 'Centro', 'Marília', 'SP', 'ATIVO');
+INSERT INTO tb_endereco (cep, logradouro, numero, complemento, bairro, cidade, estado, status) VALUES ('13201000', 'Av. Nove de Julho', 800, 'Sala 2', 'Jardim Paulista', 'Jundiaí', 'SP', 'ATIVO');
+INSERT INTO tb_endereco (cep, logradouro, numero, complemento, bairro, cidade, estado, status) VALUES('13400000', 'Rua Duque de Caxias', 900, 'Flat', 'Centro', 'Piracicaba', 'SP', 'ATIVO');
+INSERT INTO tb_endereco (cep, logradouro, numero, complemento, bairro, cidade, estado, status) VALUES ('14801000', 'Av. Independência', 1000, 'Fazenda', 'Vila Tibério', 'Araraquara', 'SP', 'ATIVO');
 
 
 -- Inserindo dados na tabela tb_cliente

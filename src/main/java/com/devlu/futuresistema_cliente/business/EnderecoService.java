@@ -3,6 +3,7 @@ package com.devlu.futuresistema_cliente.business;
 import com.devlu.futuresistema_cliente.api.EnderecoRequestDTO;
 import com.devlu.futuresistema_cliente.controller.dto.EnderecoDTO;
 import com.devlu.futuresistema_cliente.entities.Endereco;
+import com.devlu.futuresistema_cliente.entities.StatusEndereco; // <--- AJUSTE: Importe o StatusEndereco
 import com.devlu.futuresistema_cliente.repository.EnderecoRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -37,6 +38,7 @@ public class EnderecoService {
         enderecoDTO.setBairro(requestDTO.getBairro());
         enderecoDTO.setCidade(requestDTO.getCidade());
         enderecoDTO.setEstado(requestDTO.getEstado());
+        // --- OK: requestDTO.getStatus() é String, e enderecoDTO.setStatus() espera String ---
         enderecoDTO.setStatus(requestDTO.getStatus());
         return enderecoDTO;
     }
@@ -57,7 +59,21 @@ public class EnderecoService {
         entity.setBairro(dto.getBairro());
         entity.setCidade(dto.getCidade());
         entity.setEstado(dto.getEstado());
-        entity.setStatus(dto.getStatus()); // Esta linha é a que você apontou, deve funcionar agora
+        // --- AJUSTE DIDÁTICO: Converte String do DTO para o Enum da entidade ---
+        // Aqui, pegamos o status (String) do DTO e convertemos para o tipo Enum (StatusEndereco)
+        // para atribuir à entidade Endereco.
+        if (dto.getStatus() != null && !dto.getStatus().trim().isEmpty()) {
+            try {
+                entity.setStatus(StatusEndereco.valueOf(dto.getStatus()));
+            } catch (IllegalArgumentException e) {
+                // Lidar com status inválido se a String não corresponder a um valor do Enum
+                throw new IllegalArgumentException("Status de endereço inválido: " + dto.getStatus()
+                        + ". Valores permitidos: " + java.util.Arrays.toString(StatusEndereco.values()));
+            }
+        } else {
+            // Se o status não for fornecido no DTO, pode-se definir um valor padrão
+            entity.setStatus(StatusEndereco.ATIVO); // Exemplo: define como ATIVO por padrão
+        }
         return entity;
     }
 
@@ -77,7 +93,9 @@ public class EnderecoService {
         dto.setBairro(entity.getBairro());
         dto.setCidade(entity.getCidade());
         dto.setEstado(entity.getEstado());
-        dto.setStatus(entity.getStatus());
+        // --- AJUSTE DIDÁTICO: Converte o Enum da entidade para String do DTO ---
+        // Pega o status (Enum) da entidade e o nome (String) dele para atribuir ao DTO.
+        dto.setStatus((entity.getStatus() != null) ? entity.getStatus().name() : null); // <--- AJUSTE
         return dto;
     }
 
@@ -96,7 +114,10 @@ public class EnderecoService {
             throw new IllegalArgumentException("Endereço já possui ID. Use o método 'update' para atualizar.");
         }
 
-        Endereco endereco = toEntity(toEnderecoDTO(enderecoRequestDTO)); // Converte RequestDTO para DTO e depois para Entity
+        // --- AJUSTE DIDÁTICO: Conversão de String (RequestDTO) para Enum (Entity) ---
+        // Converte o RequestDTO para Endereco (Entity). O método toEntity(EnderecoDTO)
+        // já cuida da conversão de String para StatusEndereco.
+        Endereco endereco = toEntity(toEnderecoDTO(enderecoRequestDTO)); // <--- AJUSTE
         Endereco savedEndereco = enderecoRepository.save(endereco);
         return toDTO(savedEndereco);
     }
@@ -128,7 +149,22 @@ public class EnderecoService {
         existingEndereco.setBairro(enderecoRequestDTO.getBairro());
         existingEndereco.setCidade(enderecoRequestDTO.getCidade());
         existingEndereco.setEstado(enderecoRequestDTO.getEstado());
-        existingEndereco.setStatus(enderecoRequestDTO.getStatus());
+        // --- AJUSTE DIDÁTICO: Converte String (RequestDTO) para Enum (Entity) ---
+        // Aqui, pegamos o status (String) do RequestDTO e convertemos para o tipo Enum (StatusEndereco)
+        // para atribuir à entidade Endereco existente.
+        if (enderecoRequestDTO.getStatus() != null && !enderecoRequestDTO.getStatus().trim().isEmpty()) {
+            try {
+                existingEndereco.setStatus(StatusEndereco.valueOf(enderecoRequestDTO.getStatus()));
+                // <--- AJUSTE
+            } catch (IllegalArgumentException e) {
+                throw new IllegalArgumentException("Status de endereço inválido: "
+                        + enderecoRequestDTO.getStatus() + ". Valores permitidos: " + java.util.Arrays.toString(StatusEndereco.values()));
+            }
+        } else {
+            // Se o status não for fornecido no DTO, mantém o existente ou define um padrão
+            // Ou, se for permitido que o status seja "limpo", poderia ser existingEndereco.setStatus(null);
+            // existingEndereco.setStatus(StatusEndereco.ATIVO); // Exemplo: define como ATIVO por padrão
+        }
 
         Endereco updatedEndereco = enderecoRepository.save(existingEndereco);
         return toDTO(updatedEndereco);
@@ -187,6 +223,20 @@ public class EnderecoService {
         if (dto.getCep() == null || dto.getCep().trim().isEmpty()) {
             throw new IllegalArgumentException("O CEP é obrigatório (validação extra no serviço).");
         }
-        // ... (outras validações que desejar)
+        // --- AJUSTE DIDÁTICO: Validação do Status do Endereço (String) ---
+        // Verifica se o status é fornecido e se corresponde a um valor do Enum.
+        if (dto.getStatus() != null && !dto.getStatus().trim().isEmpty()) {
+            try {
+                StatusEndereco.valueOf(dto.getStatus());
+            } catch (IllegalArgumentException e) {
+                throw new IllegalArgumentException("Status de endereço inválido: " + dto.getStatus()
+                        + ". Valores permitidos: " + java.util.Arrays.toString(StatusEndereco.values()));
+            }
+        } else {
+            // Se o status é obrigatório, e não foi fornecido, lança exceção.
+            // Se for permitido ser nulo, remova ou comente esta parte.
+            throw new IllegalArgumentException("Status do endereço é obrigatório.");
+        }
+        // ... (outras validações se for necessárias)
     }
 }

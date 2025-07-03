@@ -1,5 +1,5 @@
-// File: src/main/java/com/devlu/futuresistema_cliente/business/ClienteService.java
 package com.devlu.futuresistema_cliente.business;
+
 import com.devlu.futuresistema_cliente.api.ClienteRequestDTO;
 import com.devlu.futuresistema_cliente.api.EnderecoRequestDTO;
 import com.devlu.futuresistema_cliente.controller.dto.ClienteDTO;
@@ -8,6 +8,7 @@ import com.devlu.futuresistema_cliente.entities.AuditEntry;
 import com.devlu.futuresistema_cliente.entities.Cliente;
 import com.devlu.futuresistema_cliente.entities.Endereco;
 import com.devlu.futuresistema_cliente.entities.StatusCliente;
+import com.devlu.futuresistema_cliente.entities.StatusEndereco;
 import com.devlu.futuresistema_cliente.repository.AuditEntryRepository;
 import com.devlu.futuresistema_cliente.repository.ClienteRepository;
 import com.devlu.futuresistema_cliente.repository.EnderecoRepository;
@@ -16,8 +17,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
-import java.util.regex.Pattern;
 import java.util.stream.Collectors;
+// import java.util.regex.Pattern; // Manter o import, caso queira reativar ou usar em outros lugares
 
 /**
  * Serviço de negócios para operações relacionadas a Clientes.
@@ -33,9 +34,9 @@ public class ClienteService {
     @Autowired
     private AuditEntryRepository auditEntryRepository; // Injetando o repositório de auditoria
 
-    // Padrão regex para validação de e-mail - Mais robusto e comprovado
-    private static final Pattern EMAIL_PATTERN = Pattern.compile(
-            "^(?!/.)(?!.*/./.)([A-Za-z0-9_/-/.])+/@([A-Za-z0-9_/-/.])+/.([A-Za-z]{2,})$");
+    // Padrão regex para validação de e-mail - COMENTADO PARA DESATIVAR A VALIDAÇÃO
+    // private static final Pattern EMAIL_PATTERN = Pattern.compile(
+    //         "^[\w._%+-]+@[\w.-]+\.[a-zA-Z]{2,}$");
 
     /**
      * Converte um ClienteDTO em uma entidade Cliente.
@@ -56,7 +57,7 @@ public class ClienteService {
         }
 
         if (dto.getEndereco() != null) {
-            entity.setEndereco(toEntity(dto.getEndereco()));
+            entity.setEndereco(toEntity(dto.getEndereco())); // Chama o método toEntity de Endereco
         }
         return entity;
     }
@@ -76,13 +77,13 @@ public class ClienteService {
         dto.setStatus(entity.getStatus().name());
 
         if (entity.getEndereco() != null) {
-            dto.setEndereco(toDTO(entity.getEndereco()));
+            dto.setEndereco(toDTO(entity.getEndereco())); // Chama o método toDTO de Endereco
         }
         return dto;
     }
 
     /**
-     * Converte um EnderecoDTO em uma entidade Endereco.
+     * Converte um EnderecoDTO em uma entidade Endereco. (MÉTODO INTERNO DO CLIENTESERVICE)
      * @param dto O EnderecoDTO a ser convertido.
      * @return A entidade Endereco.
      */
@@ -97,13 +98,25 @@ public class ClienteService {
         entity.setBairro(dto.getBairro());
         entity.setCidade(dto.getCidade());
         entity.setEstado(dto.getEstado());
-        // Se a entidade Endereco tiver campo status, descomente:
-        // entity.setStatus(dto.getStatus());
+        // --- AJUSTE DIDÁTICO: Converte String do DTO para o Enum da entidade ---
+        // Aqui, pegamos o status (String) do DTO e convertemos para o tipo Enum (StatusEndereco)
+        // para atribuir à entidade Endereco.
+        if (dto.getStatus() != null && !dto.getStatus().trim().isEmpty()) {
+            try {
+                entity.setStatus(StatusEndereco.valueOf(dto.getStatus()));
+            } catch (IllegalArgumentException e) {
+                throw new IllegalArgumentException("Status de endereço inválido: " + dto.getStatus()
+                        + ". Valores permitidos: " + java.util.Arrays.toString(StatusEndereco.values()));
+            }
+        } else {
+            // Se o status não for fornecido no DTO, pode-se definir um valor padrão
+            entity.setStatus(StatusEndereco.ATIVO); // Exemplo: define como ATIVO por padrão
+        }
         return entity;
     }
 
     /**
-     * Converte uma entidade Endereco em EnderecoDTO.
+     * Converte uma entidade Endereco em EnderecoDTO. (MÉTODO INTERNO DO CLIENTESERVICE)
      * @param entity A entidade Endereco a ser convertida.
      * @return O EnderecoDTO.
      */
@@ -118,8 +131,9 @@ public class ClienteService {
         dto.setBairro(entity.getBairro());
         dto.setCidade(entity.getCidade());
         dto.setEstado(entity.getEstado());
-        // Se a entidade Endereco tiver campo status, descomente:
-        // dto.setStatus(entity.getStatus());
+        // --- AJUSTE DIDÁTICO: Converte o Enum da entidade para String do DTO ---
+        // Pega o status (Enum) da entidade e o nome (String) dele para atribuir ao DTO.
+        dto.setStatus((entity.getStatus() != null) ? entity.getStatus().name() : null); // <--- AJUSTE
         return dto;
     }
 
@@ -137,12 +151,13 @@ public class ClienteService {
         clienteDTO.setStatus(requestDTO.getStatus());
         if (requestDTO.getEndereco() != null) {
             clienteDTO.setEndereco(toEnderecoDTO(requestDTO.getEndereco()));
+            // Chama o toEnderecoDTO (interno)
         }
         return clienteDTO;
     }
 
     /**
-     * Converte um EnderecoRequestDTO para EnderecoDTO.
+     * Converte um EnderecoRequestDTO para EnderecoDTO. (MÉTODO INTERNO DO CLIENTESERVICE)
      * @param requestDTO O EnderecoRequestDTO a ser convertido.
      * @return O EnderecoDTO correspondente.
      */
@@ -157,6 +172,9 @@ public class ClienteService {
         enderecoDTO.setBairro(requestDTO.getBairro());
         enderecoDTO.setCidade(requestDTO.getCidade());
         enderecoDTO.setEstado(requestDTO.getEstado());
+        // --- OK: O EnderecoRequestDTO provavelmente tem o status como String ---
+        enderecoDTO.setStatus(requestDTO.getStatus());
+        // <--- AJUSTE: Mapeia o status do RequestDTO para o EnderecoDTO
         return enderecoDTO;
     }
 
@@ -180,14 +198,17 @@ public class ClienteService {
             throw new IllegalArgumentException("Já existe um cliente cadastrado com este e-mail.");
         }
 
-        Cliente cliente = toEntity(clienteDTO);
+        Cliente cliente = toEntity(clienteDTO); // Converte ClienteDTO para Cliente (Entity)
 
         Cliente savedCliente = clienteRepository.save(cliente);
 
         // Registra a auditoria
-        auditEntryRepository.save(new AuditEntry("Cliente", savedCliente.getId(), "CREATE", "Novo cliente criado. Nome: " + savedCliente.getNome()));
+        auditEntryRepository.save(new AuditEntry("Cliente", savedCliente.getId(),
+                "CREATE", "Novo cliente criado. Nome: " + savedCliente.getNome()));
         if (savedCliente.getEndereco() != null) {
-            auditEntryRepository.save(new AuditEntry("Endereco", savedCliente.getEndereco().getId(), "CREATE", "Endereço criado para cliente: " + savedCliente.getNome()));
+            auditEntryRepository.save(new AuditEntry("Endereco",
+                    savedCliente.getEndereco().getId(), "CREATE",
+                    "Endereço criado para cliente: " + savedCliente.getNome()));
         }
 
         return toDTO(savedCliente);
@@ -200,7 +221,8 @@ public class ClienteService {
      * @return O ClienteDTO do cliente criado.
      */
     @Transactional
-    public ClienteDTO insert(ClienteRequestDTO clienteRequestDTO) { // Renomeado de 'create' para 'insert'
+    public ClienteDTO insert(ClienteRequestDTO clienteRequestDTO) {
+        // Renomeado de 'create' para 'insert'
         return save(toClienteDTO(clienteRequestDTO));
     }
 
@@ -220,7 +242,8 @@ public class ClienteService {
             throw new IllegalArgumentException("ID do cliente é obrigatório para atualização.");
         }
         Cliente existingCliente = clienteRepository.findById(clienteDTO.getId())
-                .orElseThrow(() -> new IllegalArgumentException("Cliente não encontrado com ID: " + clienteDTO.getId()));
+                .orElseThrow(() -> new IllegalArgumentException("Cliente não encontrado com ID: "
+                        + clienteDTO.getId()));
 
         // Verifica se o e-mail mudou e se o novo e-mail já existe para outro cliente
         if (!existingCliente.getEmail().equals(clienteDTO.getEmail())) {
@@ -237,7 +260,8 @@ public class ClienteService {
         try {
             existingCliente.setStatus(StatusCliente.valueOf(clienteDTO.getStatus()));
         } catch (IllegalArgumentException e) {
-            throw new IllegalArgumentException("Status inválido para cliente: " + clienteDTO.getStatus());
+            throw new IllegalArgumentException("Status inválido para cliente: "
+                    + clienteDTO.getStatus());
         }
 
         // Lógica para atualização do endereço
@@ -253,7 +277,8 @@ public class ClienteService {
                 // DTO do endereço tem ID, mas não corresponde ao do cliente existente ou cliente não tem endereço.
                 // Busca o endereço existente por ID para associar ou verifica se o ID é inválido.
                 enderecoEntity = enderecoRepository.findById(enderecoDTO.getId())
-                        .orElseThrow(() -> new IllegalArgumentException("Endereço com ID " + enderecoDTO.getId() + " não encontrado."));
+                        .orElseThrow(() -> new IllegalArgumentException("Endereço com ID "
+                                + enderecoDTO.getId() + " não encontrado."));
             } else {
                 // DTO do endereço não tem ID: cria um novo endereço
                 enderecoEntity = new Endereco();
@@ -266,21 +291,46 @@ public class ClienteService {
             enderecoEntity.setBairro(enderecoDTO.getBairro());
             enderecoEntity.setCidade(enderecoDTO.getCidade());
             enderecoEntity.setEstado(enderecoDTO.getEstado());
-            // enderecoEntity.setStatus(enderecoDTO.getStatus()); // Descomente se tiver status no Endereco
+            // --- AJUSTE DIDÁTICO: Converte String (DTO) para Enum (Entity) ---
+            // A linha abaixo foi o foco da discussão anterior. Garante a conversão correta.
+            if (enderecoDTO.getStatus() != null && !enderecoDTO.getStatus().trim().isEmpty()) {
+                // <--- AJUSTE
+                try {
+                    enderecoEntity.setStatus(StatusEndereco.valueOf(enderecoDTO.getStatus()));
+                    // <--- AJUSTE
+                } catch (IllegalArgumentException e) {
+                    throw new IllegalArgumentException("Status de endereço inválido: "
+                            + enderecoDTO.getStatus() + ". Valores permitidos: " + java.util.Arrays.toString(StatusEndereco.values()));
+                }
+            } else {
+                // Se o status não for fornecido no DTO, mantém o existente ou define um padrão
+                // Ou, se for permitido que o status seja "limpo",
+                // poderia ser existingEndereco.setStatus(null);
+                // existingEndereco.setStatus(StatusEndereco.ATIVO);
+                // Exemplo: define como ATIVO por padrão
+            }
 
-            existingCliente.setEndereco(enderecoEntity); // Associa o endereço (novo ou atualizado) ao cliente
+            existingCliente.setEndereco(enderecoEntity);
+            // Associa o endereço (novo ou atualizado) ao cliente
         } else {
             // Se o EnderecoDTO é nulo, significa que o endereço deve ser removido do cliente
-            existingCliente.setEndereco(null); // orphanRemoval=true garante que o endereço será deletado
+            existingCliente.setEndereco(null); // orphanRemoval=true garante que o endereço
+            // será deletado (se configurado)
         }
-        Cliente updatedCliente = clienteRepository.save(existingCliente); // Salva o cliente (e endereço via cascade)
+        Cliente updatedCliente = clienteRepository.save(existingCliente);
+        // Salva o cliente (e endereço via cascade)
 
         // Registra a auditoria
-        auditEntryRepository.save(new AuditEntry("Cliente", updatedCliente.getId(), "UPDATE", "Cliente atualizado. Nome: " + updatedCliente.getNome()));
+        auditEntryRepository.save(new AuditEntry("Cliente", updatedCliente.getId(),
+                "UPDATE", "Cliente atualizado. Nome: " + updatedCliente.getNome()));
         if (updatedCliente.getEndereco() != null) {
-            auditEntryRepository.save(new AuditEntry("Endereco", updatedCliente.getEndereco().getId(), "UPDATE", "Endereço atualizado para cliente: " + updatedCliente.getNome()));
+            auditEntryRepository.save(new AuditEntry("Endereco",
+                    updatedCliente.getEndereco().getId(), "UPDATE",
+                    "Endereço atualizado para cliente: " + updatedCliente.getNome()));
         } else {
-            auditEntryRepository.save(new AuditEntry("Cliente", updatedCliente.getId(), "UPDATE", "Endereço removido do cliente: " + updatedCliente.getNome()));
+            auditEntryRepository.save(new AuditEntry("Cliente",
+                    updatedCliente.getId(), "UPDATE",
+                    "Endereço removido do cliente: " + updatedCliente.getNome()));
         }
 
         return toDTO(updatedCliente);
@@ -296,7 +346,8 @@ public class ClienteService {
      * @throws IllegalArgumentException se o cliente não for encontrado ou dados forem inválidos.
      */
     @Transactional
-    public ClienteDTO update(Long id, ClienteRequestDTO clienteRequestDTO) { // MÉTODO DE ATUALIZAÇÃO VIA REQUESTDTO (PARA REST API)
+    public ClienteDTO update(Long id, ClienteRequestDTO clienteRequestDTO) {
+        // MÉTODO DE ATUALIZAÇÃO VIA REQUESTDTO (PARA REST API)
         // Converte o ClienteRequestDTO em ClienteDTO e define o ID.
         // A validação de @Valid já ocorreu no controller.
         ClienteDTO clienteDTO = toClienteDTO(clienteRequestDTO);
@@ -336,16 +387,20 @@ public class ClienteService {
     @Transactional
     public void delete(Long id) {
         Cliente cliente = clienteRepository.findById(id)
-                .orElseThrow(() -> new IllegalArgumentException("Cliente não encontrado para exclusão: " + id));
+                .orElseThrow(() -> new IllegalArgumentException("Cliente não encontrado para exclusão: "
+                        + id));
         String clienteNome = cliente.getNome(); // Pega o nome antes de deletar
         Long clienteId = cliente.getId();
         Long enderecoId = (cliente.getEndereco() != null) ? cliente.getEndereco().getId() : null;
 
         clienteRepository.delete(cliente); // Exclui o cliente e o endereço (se orphanRemoval=true)
         // Registra a auditoria
-        auditEntryRepository.save(new AuditEntry("Cliente", clienteId, "DELETE", "Cliente excluído. Nome: " + clienteNome));
+        auditEntryRepository.save(new AuditEntry("Cliente", clienteId,
+                "DELETE", "Cliente excluído. Nome: " + clienteNome));
         if (enderecoId != null) { // O endereço também foi removido
-            auditEntryRepository.save(new AuditEntry("Endereco", enderecoId, "DELETE", "Endereço associado ao cliente " + clienteNome + " foi excluído."));
+            auditEntryRepository.save(new AuditEntry("Endereco", enderecoId,
+                    "DELETE", "Endereço associado ao cliente " + clienteNome
+                    + " foi excluído."));
         }
     }
 
@@ -356,12 +411,14 @@ public class ClienteService {
      */
     @Transactional(readOnly = true)
     public List<AuditEntry> findAuditEntriesForClient(Long clientId) {
-        List<AuditEntry> clienteAudits = auditEntryRepository.findByEntityTypeAndEntityIdOrderByTimestampAsc("Cliente", clientId);
+        List<AuditEntry> clienteAudits = auditEntryRepository.
+                findByEntityTypeAndEntityIdOrderByTimestampAsc("Cliente", clientId);
         // Busca o cliente para obter o ID do endereço, se existir
         clienteRepository.findById(clientId).ifPresent(cliente -> {
             if (cliente.getEndereco() != null) {
                 Long enderecoId = cliente.getEndereco().getId();
-                List<AuditEntry> enderecoAudits = auditEntryRepository.findByEntityTypeAndEntityIdOrderByTimestampAsc("Endereco", enderecoId);
+                List<AuditEntry> enderecoAudits = auditEntryRepository.
+                        findByEntityTypeAndEntityIdOrderByTimestampAsc("Endereco", enderecoId);
                 clienteAudits.addAll(enderecoAudits);
             }
         });
@@ -385,9 +442,10 @@ public class ClienteService {
         if (dto.getEmail() == null || dto.getEmail().trim().isEmpty()) {
             throw new IllegalArgumentException("Email do cliente é obrigatório.");
         }
-        if (!EMAIL_PATTERN.matcher(dto.getEmail()).matches()) {
-            throw new IllegalArgumentException("Formato de e-mail inválido.");
-        }
+        // LINHA COMENTADA PARA DESATIVAR A VALIDAÇÃO DE REGEX DO E-MAIL
+        // if (!EMAIL_PATTERN.matcher(dto.getEmail()).matches()) {
+        //     throw new IllegalArgumentException("Formato de e-mail inválido.");
+        // }
         if (dto.getTelefone() == null || dto.getTelefone().trim().isEmpty()) {
             throw new IllegalArgumentException("Telefone do cliente é obrigatório.");
         }
@@ -398,7 +456,8 @@ public class ClienteService {
         try {
             StatusCliente.valueOf(dto.getStatus());
         } catch (IllegalArgumentException e) {
-            throw new IllegalArgumentException("Status de cliente inválido: " + dto.getStatus() + ". Valores permitidos: ATIVO, INATIVO, EXCLUIDO.");
+            throw new IllegalArgumentException("Status de cliente inválido: " + dto.getStatus()
+                    + ". Valores permitidos: ATIVO, INATIVO, EXCLUIDO.");
         }
         if (dto.getEndereco() != null) {
             validateEnderecoDTO(dto.getEndereco());
@@ -425,6 +484,21 @@ public class ClienteService {
         }
         if (dto.getEstado() == null || dto.getEstado().trim().isEmpty()) {
             throw new IllegalArgumentException("Estado do endereço é obrigatório.");
+        }
+        // --- AJUSTE DIDÁTICO: Validação do Status do Endereço (String) ---
+        // Aqui, verificamos se o status é fornecido e se corresponde a um dos
+        // valores válidos do Enum StatusEndereco.
+        if (dto.getStatus() != null && !dto.getStatus().trim().isEmpty()) {
+            try {
+                StatusEndereco.valueOf(dto.getStatus());
+            } catch (IllegalArgumentException e) {
+                throw new IllegalArgumentException("Status do endereço inválido: " + dto.getStatus()
+                        + ". Valores permitidos: " + java.util.Arrays.toString(StatusEndereco.values()));
+            }
+        } else {
+            // Se o status é obrigatório, e não foi fornecido, lança exceção.
+            // Se for permitido ser nulo, remova ou comente esta parte.
+            throw new IllegalArgumentException("Status do endereço é obrigatório.");
         }
     }
 }

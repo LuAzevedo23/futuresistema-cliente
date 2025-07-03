@@ -32,7 +32,7 @@ public class AdicionarClienteFXController implements Initializable {
     @FXML
     private TextField telefoneField;
     @FXML
-    private ComboBox<String> statusComboBox; // ComboBox para o status
+    private ComboBox<String> statusComboBox; // ComboBox para o status do CLIENTE
     @FXML
     private TextField cepField;
     @FXML
@@ -47,6 +47,10 @@ public class AdicionarClienteFXController implements Initializable {
     private TextField cidadeField;
     @FXML
     private TextField estadoField;
+    // --- NOVO CAMPO: ComboBox para o status do ENDEREÇO ---
+    @FXML
+    private ComboBox<String> enderecoStatusComboBox;
+    // <--- AJUSTE 1: Novo campo FXML para status do endereço
 
     @Autowired
     private ClienteService clienteService;
@@ -64,9 +68,15 @@ public class AdicionarClienteFXController implements Initializable {
 
     @Override
     public void initialize(URL url, ResourceBundle rb) {
-        // Inicializa o ComboBox de status
+        // Inicializa o ComboBox de status do CLIENTE
         statusComboBox.getItems().addAll("ATIVO", "INATIVO", "EXCLUIDO");
         statusComboBox.getSelectionModel().select("ATIVO"); // Define um valor padrão
+
+        // --- NOVO AJUSTE 2: Inicializa o ComboBox de status do ENDEREÇO ---
+        // Assume que o status do endereço usa os mesmos valores do status do cliente.
+        // Adapte se o enum StatusEndereco tiver valores diferentes.
+        enderecoStatusComboBox.getItems().addAll("ATIVO", "INATIVO", "EXCLUIDO");
+        enderecoStatusComboBox.getSelectionModel().select("ATIVO"); // Define um valor padrão
     }
 
     /**
@@ -80,12 +90,15 @@ public class AdicionarClienteFXController implements Initializable {
             EnderecoDTO endereco = new EnderecoDTO();
             endereco.setCep(cepField.getText());
             endereco.setLogradouro(logradouroField.getText());
+            // O campo 'Número' espera um valor numérico (Long). Se 'S/N' ou texto for inserido, ocorrerá NumberFormatException.
             endereco.setNumero(numeroField.getText().isEmpty() ? null :
                     Long.valueOf(numeroField.getText()));
             endereco.setComplemento(complementoField.getText());
             endereco.setBairro(bairroField.getText());
             endereco.setCidade(cidadeField.getText());
             endereco.setEstado(estadoField.getText());
+            // --- NOVO AJUSTE 3: Atribui o status do endereço a partir do novo ComboBox ---
+            endereco.setStatus(enderecoStatusComboBox.getValue()); // <--- AQUI!
 
             // Cria um objeto ClienteDTO com os dados do formulário
             ClienteDTO novoCliente = new ClienteDTO();
@@ -98,21 +111,47 @@ public class AdicionarClienteFXController implements Initializable {
             // Chama o serviço para salvar o cliente
             clienteService.save(novoCliente);
 
-            Notificacao.exibirMensagem("Sucesso", "Cliente Adicionado", "Cliente " + novoCliente.getNome() + " adicionado com sucesso!", Alert.AlertType.INFORMATION);
+            Notificacao.exibirMensagem("Sucesso", "Cliente Adicionado",
+                    "Cliente " + novoCliente.getNome() + " adicionado com sucesso!",
+                    Alert.AlertType.INFORMATION);
 
-            // Fecha a janela ou aba atual e volta para a lista principal
-            fecharJanelaOuAba(event);
+            // *** FECHAMENTO DA JANELA: MANTIDO COMENTADO PARA TESTES ***
+            // Comentei a linha que fecha a janela após o salvamento para permitir continuar os testes.
+            // Para fechar a janela novamente, basta descomentar a linha abaixo.
+            // fecharJanelaOuAba(event);
+
+            // Opcional: Limpar os campos após o salvamento se a janela permanecer aberta
+            // Limpa os campos após o salvamento, se desejar (remova os // para ativar)
+            // nomeField.clear();
+            // emailField.clear();
+            // telefoneField.clear();
+            // statusComboBox.getSelectionModel().select("ATIVO"); // Resetar status do Cliente
+            // cepField.clear();
+            // logradouroField.clear();
+            // numeroField.clear();
+            // complementoField.clear();
+            // bairroField.clear();
+            // cidadeField.clear();
+            // estadoField.clear();
+            // enderecoStatusComboBox.getSelectionModel().select("ATIVO"); // Resetar status do Endereço
+
+            // Atualiza a lista no controlador pai e volta para a aba da lista
             if (callback != null) {
                 callback.refreshClientList(); // Atualiza a lista no controlador pai
                 callback.selectClientListTab(); // Volta para a aba da lista
             }
 
         } catch (NumberFormatException e) {
-            Notificacao.exibirMensagem("Erro de Entrada", "Erro no Número", "O campo 'Número' deve conter apenas números válidos.", Alert.AlertType.ERROR);
+            Notificacao.exibirMensagem("Erro de Entrada", "Erro no Número",
+                    "O campo 'Número' deve conter apenas números válidos.",
+                    Alert.AlertType.ERROR);
         } catch (IllegalArgumentException e) {
-            Notificacao.exibirMensagem("Erro de Validação", "Dados Inválidos", e.getMessage(), Alert.AlertType.ERROR);
+            Notificacao.exibirMensagem("Erro de Validação", "Dados Inválidos",
+                    e.getMessage(), Alert.AlertType.ERROR);
         } catch (Exception e) {
-            Notificacao.exibirMensagem("Erro", "Erro ao Salvar Cliente", "Ocorreu um erro ao salvar o cliente: " + e.getMessage(), Alert.AlertType.ERROR);
+            Notificacao.exibirMensagem("Erro", "Erro ao Salvar Cliente",
+                    "Ocorreu um erro ao salvar o cliente: " + e.getMessage(),
+                    Alert.AlertType.ERROR);
             e.printStackTrace();
         }
     }

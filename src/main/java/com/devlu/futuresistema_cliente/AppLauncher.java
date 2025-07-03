@@ -1,11 +1,12 @@
 package com.devlu.futuresistema_cliente;
 
 import javafx.application.Application;
-import javafx.application.Platform; // Importação essencial para Platform.runLater()
+import javafx.application.Platform;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.stage.Stage;
+import javafx.stage.WindowEvent; // IMPORTANTE: Adicionado para tratamento de eventos da janela
 import org.springframework.boot.builder.SpringApplicationBuilder;
 import org.springframework.context.ConfigurableApplicationContext;
 
@@ -18,6 +19,7 @@ import java.io.IOException;
 public class AppLauncher extends Application {
 
     private ConfigurableApplicationContext springContext;
+    // Não precisamos de uma referência ao primaryStage aqui, pois ele é passado para showMainView.
 
     /**
      * Método de inicialização da aplicação JavaFX.
@@ -31,6 +33,11 @@ public class AppLauncher extends Application {
         // Inicializa o contexto Spring Boot, executando a classe principal da sua aplicação Spring.
         this.springContext = new SpringApplicationBuilder(FuturesistemaClienteApplication.class)
                 .run(args);
+
+        // *** NOVO AJUSTE CRUCIAL: IMPEDE O FECHAMENTO IMPLÍCITO DA JVM PELO JAVAFX ***
+        // Isso é fundamental para que o contexto Spring Boot (e o H2 Console) continue rodando
+        // mesmo que todas as janelas JavaFX sejam fechadas ou escondidas.
+        Platform.setImplicitExit(false);
     }
 
     /**
@@ -60,6 +67,17 @@ public class AppLauncher extends Application {
             Scene scene = new Scene(root); // Cria uma nova cena com o conteúdo carregado
             primaryStage.setScene(scene); // Define a cena na janela principal
             primaryStage.setTitle("Gerenciador de Clientes"); // Define o título da janela
+
+            // *** NOVO AJUSTE CRUCIAL: TRATAMENTO DO EVENTO DE FECHAMENTO DA JANELA (Botão 'X') ***
+            // Em vez de fechar toda a aplicação, apenas esconde a janela principal.
+            // Isso mantém o contexto do Spring Boot (e o H2 Console) ativo em segundo plano.
+            primaryStage.setOnCloseRequest(event -> {
+                event.consume(); // Impede o fechamento padrão da janela (que tentaria fechar a JVM)
+                primaryStage.hide(); // Apenas esconde a janela, mantendo o Spring Boot ativo
+                // Para encerrar a aplicação completamente, um botão "Sair" na UI seria necessário,
+                // chamando Platform.exit() e springContext.close().
+            });
+
             primaryStage.show(); // Exibe a janela
 
             // AJUSTE CRUCIAL: Usando Platform.runLater para garantir que a janela venha para a frente e receba o foco
@@ -84,13 +102,19 @@ public class AppLauncher extends Application {
     }
 
     /**
-     * Método chamado quando a aplicação JavaFX é encerrada.
-     * Garante o fechamento do contexto Spring Boot e a saída da plataforma JavaFX.
+     * Método chamado quando a aplicação JavaFX é encerrada (via Platform.exit()).
+     * Garante o fechamento do contexto Spring Boot.
+     * Este método só é invocado se `Platform.exit()` for explicitamente chamado (por exemplo, por um botão "Sair").
      */
     @Override
     public void stop() {
-        this.springContext.close(); // Fecha o contexto do Spring Boot
-        Platform.exit(); // Encerra a plataforma JavaFX
+        // Verifica se o contexto Spring está ativo antes de tentar fechá-lo
+        if (springContext != null && springContext.isActive()) {
+            this.springContext.close(); // Fecha o contexto do Spring Boot
+            System.out.println("Contexto Spring Boot encerrado.");
+        }
+        // Não é necessário chamar Platform.exit() aqui, pois este método já é
+        // parte do processo de encerramento da plataforma JavaFX.
     }
 
     /**

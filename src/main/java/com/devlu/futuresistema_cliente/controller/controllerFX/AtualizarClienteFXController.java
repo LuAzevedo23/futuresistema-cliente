@@ -34,7 +34,7 @@ public class AtualizarClienteFXController implements Initializable {
     @FXML
     private TextField telefoneField;
     @FXML
-    private ComboBox<String> statusComboBox; // ComboBox para o status
+    private ComboBox<String> statusComboBox; // ComboBox para o status do CLIENTE
     @FXML
     private TextField cepField;
     @FXML
@@ -49,6 +49,10 @@ public class AtualizarClienteFXController implements Initializable {
     private TextField cidadeField;
     @FXML
     private TextField estadoField;
+    // --- NOVO CAMPO: ComboBox para o status do ENDEREÇO ---
+    @FXML
+    private ComboBox<String> enderecoStatusComboBox;
+    // <--- AJUSTE 1: Novo campo FXML para status do endereço
 
     @Autowired
     private ClienteService clienteService;
@@ -82,11 +86,15 @@ public class AtualizarClienteFXController implements Initializable {
                 cepField.setText(endereco.getCep());
                 logradouroField.setText(endereco.getLogradouro());
                 // Garante que numeroField exiba um String vazia se o número for nulo
-                numeroField.setText(endereco.getNumero() != null ? String.valueOf(endereco.getNumero()) : "");
+                numeroField.setText(endereco.getNumero() != null ?
+                        String.valueOf(endereco.getNumero()) : "");
                 complementoField.setText(endereco.getComplemento());
                 bairroField.setText(endereco.getBairro());
                 cidadeField.setText(endereco.getCidade());
                 estadoField.setText(endereco.getEstado());
+                // --- NOVO AJUSTE 3: Exibe o status do endereço ao carregar o cliente ---
+                enderecoStatusComboBox.getSelectionModel().select(endereco.getStatus());
+                // <--- AQUI!
             } else {
                 // Limpa os campos de endereço se não houver endereço associado
                 cepField.setText("");
@@ -96,16 +104,24 @@ public class AtualizarClienteFXController implements Initializable {
                 bairroField.setText("");
                 cidadeField.setText("");
                 estadoField.setText("");
+                // --- NOVO AJUSTE 3 (cont.): Limpa o status do endereço se não houver endereço ---
+                enderecoStatusComboBox.getSelectionModel().clearSelection(); // <--- AQUI!
             }
         }
     }
 
     @Override
     public void initialize(URL url, ResourceBundle rb) {
-        // Inicializa o ComboBox de status
+        // Inicializa o ComboBox de status do CLIENTE
         statusComboBox.getItems().addAll("ATIVO", "INATIVO", "EXCLUIDO");
         // O campo ID geralmente não é editável, então podemos desabilitá-lo.
         idField.setEditable(false);
+
+        // --- NOVO AJUSTE 2: Inicializa o ComboBox de status do ENDEREÇO ---
+        // Assume que o status do endereço usa os mesmos valores do status do cliente.
+        // Adapte se o enum StatusEndereco tiver valores diferentes.
+        enderecoStatusComboBox.getItems().addAll("ATIVO", "INATIVO", "EXCLUIDO");
+        enderecoStatusComboBox.getSelectionModel().select("ATIVO"); // Define um valor padrão
     }
 
     /**
@@ -115,7 +131,8 @@ public class AtualizarClienteFXController implements Initializable {
     @FXML
     public void atualizarCliente(ActionEvent event) {
         if (clienteAtual == null) {
-            Notificacao.exibirMensagem("Erro", "Nenhum Cliente Selecionado", "Não há cliente para atualizar.", Alert.AlertType.ERROR);
+            Notificacao.exibirMensagem("Erro", "Nenhum Cliente Selecionado",
+                    "Não há cliente para atualizar.", Alert.AlertType.ERROR);
             return;
         }
 
@@ -135,32 +152,44 @@ public class AtualizarClienteFXController implements Initializable {
             endereco.setCep(cepField.getText());
             endereco.setLogradouro(logradouroField.getText());
             // Converte o texto do número para Long, tratando campo vazio como null
-            endereco.setNumero(numeroField.getText().isEmpty() ? null : Long.valueOf(numeroField.getText()));
+            endereco.setNumero(numeroField.getText().isEmpty() ? null :
+                    Long.valueOf(numeroField.getText()));
             endereco.setComplemento(complementoField.getText());
             endereco.setBairro(bairroField.getText());
             endereco.setCidade(cidadeField.getText());
             endereco.setEstado(estadoField.getText());
+            // --- NOVO AJUSTE 4: Atribui o status do endereço a partir do novo ComboBox ---
+            endereco.setStatus(enderecoStatusComboBox.getValue()); // <--- AQUI!
 
             // Chama o serviço para atualizar o cliente
-            // Esta chamada agora deve funcionar com o método update(ClienteDTO) no ClienteService
             clienteService.update(clienteAtual);
 
-            Notificacao.exibirMensagem("Sucesso", "Cliente Atualizado", "Cliente " + clienteAtual.getNome() + " atualizado com sucesso!", Alert.AlertType.INFORMATION);
+            Notificacao.exibirMensagem("Sucesso", "Cliente Atualizado",
+                    "Cliente " + clienteAtual.getNome() + " atualizado com sucesso!",
+                    Alert.AlertType.INFORMATION);
 
-            // Fecha a janela ou aba atual e volta para a lista principal
-            fecharJanelaOuAba(event);
+            // *** FECHAMENTO DA JANELA: MANTIDO COMENTADO PARA TESTES ***
+            // Comentei a linha que fecha a janela após o salvamento para permitir continuar os testes.
+            // Para fechar a janela novamente, basta descomentar a linha abaixo.
+            // fecharJanelaOuAba(event);
+
             if (callback != null) {
                 callback.refreshClientList(); // Atualiza a lista no controlador pai
                 callback.selectClientListTab(); // Volta para a aba da lista
             }
 
         } catch (NumberFormatException e) {
-            Notificacao.exibirMensagem("Erro de Entrada", "Erro no Número", "O campo 'Número' deve conter apenas números válidos. Detalhes: " + e.getMessage(), Alert.AlertType.ERROR);
+            Notificacao.exibirMensagem("Erro de Entrada", "Erro no Número",
+                    "O campo 'Número' deve conter apenas números válidos. Detalhes: "
+                            + e.getMessage(), Alert.AlertType.ERROR);
         } catch (IllegalArgumentException e) {
             // Captura validações lançadas pelo ClienteService
-            Notificacao.exibirMensagem("Erro de Validação", "Dados Inválidos", e.getMessage(), Alert.AlertType.ERROR);
+            Notificacao.exibirMensagem("Erro de Validação", "Dados Inválidos",
+                    e.getMessage(), Alert.AlertType.ERROR);
         } catch (Exception e) {
-            Notificacao.exibirMensagem("Erro", "Erro ao Atualizar Cliente", "Ocorreu um erro inesperado ao atualizar o cliente. Detalhes: " + e.getMessage(), Alert.AlertType.ERROR);
+            Notificacao.exibirMensagem("Erro", "Erro ao Atualizar Cliente",
+                    "Ocorreu um erro inesperado ao atualizar o cliente. Detalhes: "
+                            + e.getMessage(), Alert.AlertType.ERROR);
             e.printStackTrace();
         }
     }

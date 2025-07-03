@@ -89,8 +89,8 @@
     -fx-border-radius: 6px;
     -fx-border-color: #3B82F6;
     -fx-border-width: 1.2px;
-    -fx-font-size: 16px;
-    -fx-padding: 10px 8px;
+    -fx-font-size: 18px;
+    -fx-padding: 12px 15px;
     -fx-text-fill: #1E3A8A;
 }
 
@@ -137,7 +137,7 @@
     .title { -fx-font-size: 24px; }
     .logo { -fx-pref-width: 130px; -fx-pref-height: 38px; }
     .card { -fx-padding: 12px; }
-    .input { -fx-font-size: 14px; } /* Reduz o tamanho da fonte */
+    .input { -fx-font-size: 16px; } /* Reduz o tamanho da fonte */
 }
 
 /* Responsividade máxima */
@@ -145,7 +145,7 @@
     .title { -fx-font-size: 40px; }
     .logo { -fx-pref-width: 240px; -fx-pref-height: 72px; }
     .card { -fx-padding: 40px; }
-    .input { -fx-font-size: 18px; } /* Aumenta o tamanho da fonte */
+    .input { -fx-font-size: 20px; } /* Aumenta o tamanho da fonte */
 }
 
 /* Linhas dinâmicas (pode ser aplicado a ícones, separadores ou bordas) */
@@ -162,8 +162,8 @@
     -fx-border-color: #3B82F6;
     -fx-border-width: 1.2px;
     -fx-border-radius: 6px;
-    -fx-padding: 5px;
-    -fx-font-size: 14px;
+     -fx-padding: 8px 10px;
+    -fx-font-size: 16px;
 }
 
 .text-area:focused {
